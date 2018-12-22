@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Test Geomap Utils</title>
-    <link rel="stylesheet" href="https://js.arcgis.com/4.9/esri/css/main.css" />
+    <link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css" />
     <style>
       html,
       body,
@@ -18,36 +18,22 @@
     </style>
   </head>
   <body>
-    <div id="viewDiv"><button id="testSlide">测试幻灯片</button></div>
-    <script src="https://js.arcgis.com/4.9/"></script>
+    <div id="viewDiv"></div>
+    <script src="https://js.arcgis.com/4.10/"></script>
     <script>
-      require([
-        "esri/config",
-        "esri/WebScene",
-        "esri/views/SceneView",
-        "../dist/geomap-utils.min.js"
-      ], function(esriConfig, WebScene, SceneView) {
-        esriConfig.portalUrl = "http://geomap.arcgisonline.cn/arcgis";
-
-        var map = new WebScene({
-          portalItem: {
-            // autocasts as new PortalItem()
-            id: "91f212eb4f59409d8db5434b5ab00236"
-          }
-        });
-
-        var view = new SceneView({
-          map: map,
-          container: "viewDiv"
-        });
-
-        view.when(function() {
-          document
-            .getElementById("testSlide")
-            .addEventListener("click", function() {
-              window.agsUtils.view.map3d.gotoBySliderName(view, "北京市");
+      require(['../dist/geomap-utils.js'], function(agsUtils) {
+        agsUtils.jsapi
+          .load(['esri/Map', 'esri/views/SceneView'])
+          .then(function([EsriMap, SceneView]) {
+            var map = new EsriMap({
+              basemap: 'osm',
             });
-        });
+
+            var view = new SceneView({
+              map: map,
+              container: 'viewDiv',
+            });
+          });
       });
     </script>
   </body>

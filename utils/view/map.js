@@ -80,22 +80,31 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
     if (highlightSelect) highlightSelect.remove();
     highlightSelect = layerView.highlight(graphic);
   });
-  view.on("click", e => {
+  view.on('click', e => {
     if (highlightSelect) highlightSelect.remove();
   });
   if (isGoto) {
     view.goTo(
       {
         target: graphic.geometry,
-        tilt: 70
+        tilt: 70,
       },
       {
         duration: 2000,
-        easing: "in-out-expo"
+        easing: 'in-out-expo',
       }
     );
   }
 }
-const mapViewUtil = {getLayerByTitle,getLayerByIndex,getLayerById,setLayerVisible,highlightByLayerObjid,queryFeathersFromLayer,queryFeathersFromLayer,highlightByLayerGraphic};
+const mapViewUtil = {
+  getLayerByTitle,
+  getLayerByIndex,
+  getLayerById,
+  setLayerVisible,
+  highlightByLayerObjid,
+  queryFeathersFromLayer,
+  queryFeathersFromLayer,
+  highlightByLayerGraphic,
+};
 
 export default mapViewUtil;

@@ -1,6 +1,8 @@
+import { default as jsapi } from "./jsapi";
 import { default as view } from "./view";
 
 const utils = {
+  jsapi,
   view
 };
 export default utils;
