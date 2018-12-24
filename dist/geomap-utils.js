@@ -212,45 +212,17 @@
         utils: utils
     };
 
-    var mode = null;
-    var MODE_REQUIRE = 'require';
-    var MODE_ESRI_LOADER = 'esri-loader';
-
-    var DEFAULT_URL$1 = 'https://js.arcgis.com/4.10/';
-
     function load(modules) {
-      if (!mode) {
-        mode = document.querySelector('script[data-esri-loader]') ? MODE_ESRI_LOADER : MODE_REQUIRE;
+      var opt = {};
+      if (window.dojoConfig) {
+        opt.dojoConfig = window.dojoConfig;
       }
 
-      return new Promise(function (resolve, reject) {
-        if (mode === MODE_REQUIRE) {
-          require(modules, function () {
-            var m = [], len = arguments.length;
-            while ( len-- ) m[ len ] = arguments[ len ];
+      if (window.apiRoot) {
+        opt.url = window.apiRoot;
+      }
 
-            resolve(m);
-          });
-        } else {
-          var opt = {};
-          if (window.dojoConfig) {
-            opt.dojoConfig = window.dojoConfig;
-          }
-
-          if (window.apiRoot) {
-            opt.url = window.apiRoot;
-          } else {
-            opt.url = DEFAULT_URL$1;
-          }
-
-          esriLoader.loadModules(modules, opt).then(function () {
-            var m = [], len = arguments.length;
-            while ( len-- ) m[ len ] = arguments[ len ];
-
-            resolve(m);
-          });
-        }
-      });
+      return esriLoader.loadModules(modules);
     }
 
     var jsapi = { load: load };
