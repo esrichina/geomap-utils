@@ -222,7 +222,7 @@
         opt.url = window.apiRoot;
       }
 
-      return esriLoader.loadModules(modules);
+      return esriLoader.loadModules(modules, opt);
     }
 
     var jsapi = { load: load };
