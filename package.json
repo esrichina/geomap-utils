@@ -33,6 +33,7 @@
   "devDependencies": {
     "@babel/core": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
+    "axios": "^0.18.0",
     "buble": "^0.19.6",
     "es6-promise": "^4.2.5",
     "esri-loader": "^2.6.0",
