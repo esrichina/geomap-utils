@@ -218,6 +218,9 @@ function load(modules) {
     opt.url = window.apiRoot;
   }
 
+  if (!esriLoader.utils.Promise) {
+    esriLoader.utils.Promise = window['Promise'];
+  }
   return esriLoader.loadModules(modules, opt);
 }
 
@@ -328,7 +331,6 @@ var mapViewUtil = {
   setLayerVisible: setLayerVisible,
   highlightByLayerObjid: highlightByLayerObjid,
   queryFeathersFromLayer: queryFeathersFromLayer,
-  queryFeathersFromLayer: queryFeathersFromLayer,
   highlightByLayerGraphic: highlightByLayerGraphic,
 };
 
@@ -359,12 +361,19 @@ var viewUtil = {
   map3d: sceneViewUtil
 };
 
+// import { default as geometry } from './geometry';
+// import { default as layer } from './layer';
+// import { default as event } from './event';
+
 var utils$1 = {
   jsapi: jsapi,
-  view: viewUtil
+  view: viewUtil,
+  // layer,
+  // geometry,
+  // event,
 };
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   // running in browser
   // inject the utils into window
   window.agsUtils = utils$1;

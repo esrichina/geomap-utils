@@ -103,7 +103,6 @@ const mapViewUtil = {
   setLayerVisible,
   highlightByLayerObjid,
   queryFeathersFromLayer,
-  queryFeathersFromLayer,
   highlightByLayerGraphic,
 };
 

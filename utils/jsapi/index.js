@@ -10,6 +10,9 @@ function load(modules) {
     opt.url = window.apiRoot;
   }
 
+  if (!esriLoader.utils.Promise) {
+    esriLoader.utils.Promise = window['Promise'];
+  }
   return esriLoader.loadModules(modules, opt);
 }
 
