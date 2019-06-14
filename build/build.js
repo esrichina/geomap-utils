@@ -1,12 +1,12 @@
-const fs = require("fs");
-const path = require("path");
-const zlib = require("zlib");
-const uglify = require("uglify-js");
-const rollup = require("rollup");
-const configs = require("./config");
+const fs = require('fs');
+const path = require('path');
+const zlib = require('zlib');
+const uglify = require('uglify-js');
+const rollup = require('rollup');
+const configs = require('./config');
 
-if (!fs.existsSync("dist")) {
-  fs.mkdirSync("dist");
+if (!fs.existsSync('dist')) {
+  fs.mkdirSync('dist');
 }
 
 build(configs);
@@ -33,19 +33,23 @@ function buildEntry({ input, output }) {
   return rollup
     .rollup(input)
     .then(bundle => bundle.generate(output))
-    .then(({ code }) => {
-      if (isProd) {
-        const minified = uglify.minify(code, {
-          output: {
-            preamble: output.banner,
-            /* eslint-disable camelcase */
-            ascii_only: true
-            /* eslint-enable camelcase */
+    .then(genOutput => {
+      for (const chunkOrAsset of genOutput.output) {
+        if (!chunkOrAsset.isAsset) {
+          if (isProd) {
+            const minified = uglify.minify(chunkOrAsset.code, {
+              output: {
+                preamble: output.banner,
+                /* eslint-disable camelcase */
+                ascii_only: true,
+                /* eslint-enable camelcase */
+              },
+            }).code;
+            return write(output.file, minified, true);
+          } else {
+            return write(output.file, chunkOrAsset.code);
           }
-        }).code;
-        return write(output.file, minified, true);
-      } else {
-        return write(output.file, code);
+        }
       }
     });
 }
@@ -53,12 +57,7 @@ function buildEntry({ input, output }) {
 function write(dest, code, zip) {
   return new Promise((resolve, reject) => {
     function report(extra) {
-      console.log(
-        blue(path.relative(process.cwd(), dest)) +
-          " " +
-          getSize(code) +
-          (extra || "")
-      );
+      console.log(blue(path.relative(process.cwd(), dest)) + ' ' + getSize(code) + (extra || ''));
       resolve();
     }
 
@@ -67,7 +66,7 @@ function write(dest, code, zip) {
       if (zip) {
         zlib.gzip(code, (err, zipped) => {
           if (err) return reject(err);
-          report(" (gzipped: " + getSize(zipped) + ")");
+          report(' (gzipped: ' + getSize(zipped) + ')');
         });
       } else {
         report();
@@ -77,7 +76,7 @@ function write(dest, code, zip) {
 }
 
 function getSize(code) {
-  return (code.length / 1024).toFixed(2) + "kb";
+  return (code.length / 1024).toFixed(2) + 'kb';
 }
 
 function logError(e) {
@@ -85,5 +84,5 @@ function logError(e) {
 }
 
 function blue(str) {
-  return "\x1b[1m\x1b[34m" + str + "\x1b[39m\x1b[22m";
+  return '\x1b[1m\x1b[34m' + str + '\x1b[39m\x1b[22m';
 }

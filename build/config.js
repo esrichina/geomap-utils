@@ -1,5 +1,5 @@
 const path = require('path');
-const buble = require('rollup-plugin-buble');
+const babel = require('rollup-plugin-babel');
 const flow = require('rollup-plugin-flow-no-whitespace');
 const cjs = require('rollup-plugin-commonjs');
 const node = require('rollup-plugin-node-resolve');
@@ -47,7 +47,9 @@ function genConfig(opts) {
         replace({
           __VERSION__: version,
         }),
-        buble(),
+        babel({
+          exclude: 'node_modules/**', // only transpile our source code
+        }),
       ],
     },
     output: {
