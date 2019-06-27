@@ -1,4 +1,4 @@
-import * as jsapi from '../jsapi';
+import jsapi from '../jsapi';
 /**
  * 初始化二维场景
  * @author  lee  mapviewer-01
