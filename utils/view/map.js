@@ -1,7 +1,7 @@
 import * as jsapi from '../jsapi';
 /**
  * 初始化二维场景
- * @author  lee  
+ * @author  lee  mapviewer-01
  * @param {object} portal  portal地址
  * @param {string} itemid  webmapId
  * @param {string} container  地图的div
@@ -27,7 +27,7 @@ async function initMapView(portal, itemid, container) {
 
 /**
  * 通过webmapid 切换底图  适用于二三维场景
- * @author  lee  
+ * @author  lee  mapviewer-02
  * @param {object} view 场景
  * @param {string} webmapId webmap的itmid
  */
