@@ -392,10 +392,10 @@
       return _initMapView.apply(this, arguments);
     }
     /**
-     * 根据图层的title获取图层
-     * @author  lee  20181209
-     * @param {object} view  场景
-     * @param {string} title  名称
+     * 通过webmapid 切换底图  适用于二三维场景
+     * @author  lee  
+     * @param {object} view 场景
+     * @param {string} webmapId webmap的itmid
      */
 
 
@@ -440,6 +440,55 @@
         }, _callee);
       }));
       return _initMapView.apply(this, arguments);
+    }
+
+    function switchBaseMapByWebmapId(_x4, _x5) {
+      return _switchBaseMapByWebmapId.apply(this, arguments);
+    }
+    /**
+     * 根据图层的title获取图层
+     * @author  lee  20181209
+     * @param {object} view  场景
+     * @param {string} title  名称
+     */
+
+
+    function _switchBaseMapByWebmapId() {
+      _switchBaseMapByWebmapId = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee2(view, webmapId) {
+        var _ref3, _ref4, WebMap, map;
+
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return undefined(['esri/WebMap']);
+
+              case 2:
+                _ref3 = _context2.sent;
+                _ref4 = _slicedToArray(_ref3, 1);
+                WebMap = _ref4[0];
+                map = new WebMap({
+                  portalItem: {
+                    id: webmapId
+                  }
+                });
+                map.load().then(function () {
+                  map.basemap.load().then(function () {
+                    view.map.basemap = map.basemap;
+                  });
+                });
+
+              case 7:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }));
+      return _switchBaseMapByWebmapId.apply(this, arguments);
     }
 
     function getLayerByTitle(view, title) {
@@ -553,7 +602,8 @@
       setLayerVisible: setLayerVisible,
       highlightByLayerObjid: highlightByLayerObjid,
       queryFeathersFromLayer: queryFeathersFromLayer,
-      highlightByLayerGraphic: highlightByLayerGraphic
+      highlightByLayerGraphic: highlightByLayerGraphic,
+      switchBaseMapByWebmapId: switchBaseMapByWebmapId
     };
 
     /**

@@ -24,6 +24,27 @@ async function initMapView(portal, itemid, container) {
   });
   return view;
 }
+
+/**
+ * 通过webmapid 切换底图  适用于二三维场景
+ * @author  lee  
+ * @param {object} view 场景
+ * @param {string} webmapId webmap的itmid
+ */
+async function switchBaseMapByWebmapId(view, webmapId) {
+  const [WebMap] = await jsapi.load(['esri/WebMap']);
+  const map = new WebMap({
+    portalItem: {
+      id: webmapId,
+    },
+  });
+  map.load().then(function () {
+    map.basemap.load().then(function () {
+      view.map.basemap = map.basemap;
+    });
+  });
+}
+
 /**
  * 根据图层的title获取图层
  * @author  lee  20181209
@@ -131,6 +152,7 @@ const mapViewUtil = {
   highlightByLayerObjid,
   queryFeathersFromLayer,
   highlightByLayerGraphic,
+  switchBaseMapByWebmapId,
 };
 
 export default mapViewUtil;
