@@ -1,9 +1,9 @@
-import * as jsapi from '../jsapi';
+import jsapi from '../jsapi';
 
 /**
  * 环绕漫游 环绕漫游（longitude）比如：整个地图旋转
  * @no sceneviewer-03
- * @author  lee  
+ * @author  lee
  * @param {object} view  三维场景
  */
 let roamByLongtitudeInterval;
@@ -60,7 +60,7 @@ async function initSceneView(portal, itemid, container, layer, lyr) {
 }
 /**
  * 根据幻灯片的名称，切换到对应的视角
- * @author  lee 
+ * @author  lee
  * @param {*} view  场景
  * @param {*} title  幻灯片的名称
  */
