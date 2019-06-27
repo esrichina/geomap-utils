@@ -1,3 +1,29 @@
+import * as jsapi from '../jsapi';
+/**
+ * 初始化二维场景
+ * @author  lee  
+ * @param {object} portal  portal地址
+ * @param {string} itemid  webmapId
+ * @param {string} container  地图的div
+ * @returns {object}  view 场景
+ */
+async function initMapView(portal, itemid, container) {
+  const [WebMap, MapView] = await jsapi.load(['esri/WebMap', 'esri/views/MapView']);
+  const webmap = new WebMap({
+    portalItem: {
+      id: itemid,
+      portal: portal,
+    },
+  });
+  const view = new MapView({
+    container: container,
+    map: webmap,
+    ui: {
+      components: [],
+    },
+  });
+  return view;
+}
 /**
  * 根据图层的title获取图层
  * @author  lee  20181209
@@ -97,6 +123,7 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
   }
 }
 const mapViewUtil = {
+  initMapView,
   getLayerByTitle,
   getLayerByIndex,
   getLayerById,
