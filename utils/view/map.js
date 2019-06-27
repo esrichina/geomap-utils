@@ -143,6 +143,23 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
     );
   }
 }
+/**
+ * 点对象数组转换为线对象
+ * @author  liugh  20190627
+ * @param {Array} pointArr 点对象数组
+ * @return {Object} polyline  生成的线对象
+ */
+function pointArr2Line(pointArr){
+  const [Polyline] = await jsapi.load(['esri/geometry/Polyline']);
+  const ps = [];
+  pointArr.map((p)=>{
+    ps.push([p.longitude,p.latitude]);
+  });
+  ps.sort((a,b)=> a[0]-b[0]);
+  return new Polyline({
+    paths:[ps]
+  });
+}
 const mapViewUtil = {
   initMapView,
   getLayerByTitle,
@@ -153,6 +170,7 @@ const mapViewUtil = {
   queryFeathersFromLayer,
   highlightByLayerGraphic,
   switchBaseMapByWebmapId,
+  pointArr2Line,
 };
 
 export default mapViewUtil;
