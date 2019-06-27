@@ -5,13 +5,13 @@ const defaultNotification = message => {
   console.log(message);
 };
 
-const showMsg(message) {
+const showMsg = message => {
   (notificationFn || defaultNotification)(message);
-}
+};
 
 // configure defaults
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
 axios.defaults.timeout = 10000;
 
 axios.interceptors.response.use(
@@ -29,6 +29,7 @@ export const notification = {
     notificationFn = func;
   },
 };
+
 export function fetch(url, params = {}) {
   return new Promise(resolve => {
     axios

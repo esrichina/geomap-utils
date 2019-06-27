@@ -268,6 +268,28 @@
       };
     }
 
+    function _classCallCheck(instance, Constructor) {
+      if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+      }
+    }
+
+    function _defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    function _createClass(Constructor, protoProps, staticProps) {
+      if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) _defineProperties(Constructor, staticProps);
+      return Constructor;
+    }
+
     function _slicedToArray(arr, i) {
       return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
     }
@@ -308,7 +330,7 @@
 
     /**
      * 初始化二维场景
-     * @author  lee
+     * @author  lee  mapviewer-01
      * @param {object} portal  portal地址
      * @param {string} itemid  webmapId
      * @param {string} container  地图的div
@@ -320,7 +342,7 @@
     }
     /**
      * 通过webmapid 切换底图  适用于二三维场景
-     * @author  lee
+     * @author  lee  mapviewer-02
      * @param {object} view 场景
      * @param {string} webmapId webmap的itmid
      */
@@ -577,6 +599,136 @@
     var viewUtil = {
       map2d: mapViewUtil,
       map3d: sceneViewUtil
+    };
+
+    /**
+     * 受控的ArcGIS Layer类型，为Layer类包裹生命周期
+     * 目的是使应用中的业务逻辑处理趋向统一
+     */
+    var BaseLayerWrap =
+    /*#__PURE__*/
+    function () {
+      function BaseLayerWrap(opts) {
+        _classCallCheck(this, BaseLayerWrap);
+
+        this.beforeOnLoad = opts.before;
+        this.afterUnload = opts.after;
+        this.layer = opts.layer;
+      }
+
+      _createClass(BaseLayerWrap, [{
+        key: "beforeOnLoad",
+        value: function () {
+          var _beforeOnLoad = _asyncToGenerator(
+          /*#__PURE__*/
+          regeneratorRuntime.mark(function _callee() {
+            return regeneratorRuntime.wrap(function _callee$(_context) {
+              while (1) {
+                switch (_context.prev = _context.next) {
+                  case 0:
+                  case "end":
+                    return _context.stop();
+                }
+              }
+            }, _callee, this);
+          }));
+
+          function beforeOnLoad() {
+            return _beforeOnLoad.apply(this, arguments);
+          }
+
+          return beforeOnLoad;
+        }()
+      }, {
+        key: "afterUnload",
+        value: function () {
+          var _afterUnload = _asyncToGenerator(
+          /*#__PURE__*/
+          regeneratorRuntime.mark(function _callee2() {
+            return regeneratorRuntime.wrap(function _callee2$(_context2) {
+              while (1) {
+                switch (_context2.prev = _context2.next) {
+                  case 0:
+                  case "end":
+                    return _context2.stop();
+                }
+              }
+            }, _callee2, this);
+          }));
+
+          function afterUnload() {
+            return _afterUnload.apply(this, arguments);
+          }
+
+          return afterUnload;
+        }()
+      }, {
+        key: "addToView",
+        value: function () {
+          var _addToView = _asyncToGenerator(
+          /*#__PURE__*/
+          regeneratorRuntime.mark(function _callee3(view) {
+            return regeneratorRuntime.wrap(function _callee3$(_context3) {
+              while (1) {
+                switch (_context3.prev = _context3.next) {
+                  case 0:
+                    _context3.next = 2;
+                    return this.beforeOnLoad();
+
+                  case 2:
+                    view.map.add(this.layer);
+
+                  case 3:
+                  case "end":
+                    return _context3.stop();
+                }
+              }
+            }, _callee3, this);
+          }));
+
+          function addToView(_x) {
+            return _addToView.apply(this, arguments);
+          }
+
+          return addToView;
+        }()
+      }, {
+        key: "removeFromView",
+        value: function () {
+          var _removeFromView = _asyncToGenerator(
+          /*#__PURE__*/
+          regeneratorRuntime.mark(function _callee4(view) {
+            return regeneratorRuntime.wrap(function _callee4$(_context4) {
+              while (1) {
+                switch (_context4.prev = _context4.next) {
+                  case 0:
+                    _context4.next = 2;
+                    return this.afterUnload();
+
+                  case 2:
+                    view.map.layers.remove(this.layer);
+
+                  case 3:
+                  case "end":
+                    return _context4.stop();
+                }
+              }
+            }, _callee4, this);
+          }));
+
+          function removeFromView(_x2) {
+            return _removeFromView.apply(this, arguments);
+          }
+
+          return removeFromView;
+        }()
+      }]);
+
+      return BaseLayerWrap;
+    }();
+
+    var layer = {
+      WrapCls: BaseLayerWrap
     };
 
     function createCommonjsModule(fn, module) {
@@ -1458,11 +1610,11 @@
       globals: {
         // axios,
         cookies: js_cookie,
-        qs: lib // layer,
-        // geometry,
-        // event,
+        qs: lib
+      },
+      layer: layer // geometry,
+      // event,
 
-      }
     };
 
     if (typeof window !== 'undefined') {
