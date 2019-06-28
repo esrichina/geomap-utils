@@ -82,7 +82,6 @@ function pointArr2Line(pointArr){
   pointArr.map((p)=>{
     ps.push([p.longitude,p.latitude]);
   });
-  ps.sort((a,b)=> a[0]-b[0]);
   return new Polyline({
     paths:[ps]
   });
