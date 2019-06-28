@@ -164,17 +164,17 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
   }
 }
 /**
- * 根据点画缓冲区 
+ * 根据点画缓冲区
  * @author liugh mapviewer-06
  * @param {*} point 点对象
  * @param {*} radius 缓冲范围 默认 5
  * @param {*} radiusUnit 缓冲单位 默认 米
  * @return {object} pointBuffer 缓冲对象
  */
-async function drawBuffer(point, radius, radiusUnit) {
+async function drawBuffer(point, wishRadius, wishRadiusUnit) {
   if (!point) return null;
-  const radius = radius || 5;
-  const radiusUnit = radiusUnit || 'meters';
+  const radius = wishRadius || 5;
+  const radiusUnit = wishRadiusUnit || 'meters';
   const [geometryEngine] = await jsapi.load(['esri/geometry/geometryEngine']);
   const pointBuffer = geometryEngine.pointBuffer(point, radius, radiusUnit);
   pointBuffer.symbol = {

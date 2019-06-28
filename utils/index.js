@@ -1,3 +1,5 @@
+import "@babel/polyfill";
+
 import { default as jsapi } from './jsapi';
 import { default as view } from './view';
 // import { default as geometry } from './geometry';
