@@ -226,12 +226,214 @@ var jsapi = {
   load: load
 };
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+}
+
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+function _iterableToArrayLimit(arr, i) {
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+}
+
+/**
+ * 初始化二维场景
+ * @author  lee  mapviewer-01
+ * @param {object} portal  portal地址
+ * @param {string} itemid  webmapId
+ * @param {string} container  地图的div
+ * @returns {object}  view 场景
+ */
+
+function initMapView(_x, _x2, _x3) {
+  return _initMapView.apply(this, arguments);
+}
+/**
+ * 通过webmapid 切换底图  适用于二三维场景
+ * @author  lee  mapviewer-02
+ * @param {object} view 场景
+ * @param {string} webmapId webmap的itmid
+ */
+
+
+function _initMapView() {
+  _initMapView = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee(portal, itemid, container) {
+    var _ref, _ref2, WebMap, MapView, webmap, view;
+
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return jsapi.load(['esri/WebMap', 'esri/views/MapView']);
+
+          case 2:
+            _ref = _context.sent;
+            _ref2 = _slicedToArray(_ref, 2);
+            WebMap = _ref2[0];
+            MapView = _ref2[1];
+            webmap = new WebMap({
+              portalItem: {
+                id: itemid,
+                portal: portal
+              }
+            });
+            view = new MapView({
+              container: container,
+              map: webmap,
+              ui: {
+                components: []
+              }
+            });
+            return _context.abrupt("return", view);
+
+          case 9:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _initMapView.apply(this, arguments);
+}
+
+function switchBaseMapByWebmapId(_x4, _x5) {
+  return _switchBaseMapByWebmapId.apply(this, arguments);
+}
 /**
  * 根据图层的title获取图层
  * @author  lee  20181209
  * @param {object} view  场景
  * @param {string} title  名称
  */
+
+
+function _switchBaseMapByWebmapId() {
+  _switchBaseMapByWebmapId = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee2(view, webmapId) {
+    var _ref3, _ref4, WebMap, map;
+
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.next = 2;
+            return jsapi.load(['esri/WebMap']);
+
+          case 2:
+            _ref3 = _context2.sent;
+            _ref4 = _slicedToArray(_ref3, 1);
+            WebMap = _ref4[0];
+            map = new WebMap({
+              portalItem: {
+                id: webmapId
+              }
+            });
+            map.load().then(function () {
+              map.basemap.load().then(function () {
+                view.map.basemap = map.basemap;
+              });
+            });
+
+          case 7:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2, this);
+  }));
+  return _switchBaseMapByWebmapId.apply(this, arguments);
+}
+
 function getLayerByTitle(view, title) {
   var foundLayer = view.map.layers.find(function (lyr) {
     return lyr.title === title;
@@ -336,21 +538,39 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
 }
 
 var mapViewUtil = {
+  initMapView: initMapView,
   getLayerByTitle: getLayerByTitle,
   getLayerByIndex: getLayerByIndex,
   getLayerById: getLayerById,
   setLayerVisible: setLayerVisible,
   highlightByLayerObjid: highlightByLayerObjid,
   queryFeathersFromLayer: queryFeathersFromLayer,
-  highlightByLayerGraphic: highlightByLayerGraphic
+  highlightByLayerGraphic: highlightByLayerGraphic,
+  switchBaseMapByWebmapId: switchBaseMapByWebmapId
 };
 
 /**
- * 根据幻灯片的名称，切换到对应的视角
- * @author  lee 
- * @param {*} view  场景
- * @param {*} title  幻灯片的名称
+ * 环绕漫游 环绕漫游（longitude）比如：整个地图旋转
+ * @no sceneviewer-03
+ * @author  lee
+ * @param {object} view  三维场景
  */
+
+var roamByLongtitudeInterval;
+
+function roamByLongtitude(view) {
+  if (roamByLongtitudeInterval) {
+    clearInterval(roamByLongtitudeInterval);
+    roamByLongtitudeInterval = null;
+  } else {
+    roamByLongtitudeInterval = setInterval(function () {
+      var camera = view.camera.clone();
+      camera.position.longitude += 5;
+      view.goTo(camera);
+    }, 100);
+  }
+} // export { roamByLongtitude }
+
 function gotoBySliderName(view, title) {
   var slides = view.map.presentation.slides.items;
   var options = {
@@ -366,12 +586,143 @@ function gotoBySliderName(view, title) {
 }
 
 var sceneViewUtil = {
-  gotoBySliderName: gotoBySliderName
+  gotoBySliderName: gotoBySliderName,
+  roamByLongtitude: roamByLongtitude
 };
 
 var viewUtil = {
   map2d: mapViewUtil,
   map3d: sceneViewUtil
+};
+
+/**
+ * 受控的ArcGIS Layer类型，为Layer类包裹生命周期
+ * 目的是使应用中的业务逻辑处理趋向统一
+ */
+var BaseLayerWrap =
+/*#__PURE__*/
+function () {
+  function BaseLayerWrap(opts) {
+    _classCallCheck(this, BaseLayerWrap);
+
+    this.beforeOnLoad = opts.before;
+    this.afterUnload = opts.after;
+    this.layer = opts.layer;
+  }
+
+  _createClass(BaseLayerWrap, [{
+    key: "beforeOnLoad",
+    value: function () {
+      var _beforeOnLoad = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee() {
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function beforeOnLoad() {
+        return _beforeOnLoad.apply(this, arguments);
+      }
+
+      return beforeOnLoad;
+    }()
+  }, {
+    key: "afterUnload",
+    value: function () {
+      var _afterUnload = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee2() {
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function afterUnload() {
+        return _afterUnload.apply(this, arguments);
+      }
+
+      return afterUnload;
+    }()
+  }, {
+    key: "addToView",
+    value: function () {
+      var _addToView = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee3(view) {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return this.beforeOnLoad();
+
+              case 2:
+                view.map.add(this.layer);
+
+              case 3:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function addToView(_x) {
+        return _addToView.apply(this, arguments);
+      }
+
+      return addToView;
+    }()
+  }, {
+    key: "removeFromView",
+    value: function () {
+      var _removeFromView = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee4(view) {
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.next = 2;
+                return this.afterUnload();
+
+              case 2:
+                view.map.layers.remove(this.layer);
+
+              case 3:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      function removeFromView(_x2) {
+        return _removeFromView.apply(this, arguments);
+      }
+
+      return removeFromView;
+    }()
+  }]);
+
+  return BaseLayerWrap;
+}();
+
+var layer = {
+  WrapCls: BaseLayerWrap
 };
 
 function createCommonjsModule(fn, module) {
@@ -1257,11 +1608,11 @@ var utils$2 = {
   globals: {
     // axios,
     cookies: js_cookie,
-    qs: lib // layer,
-    // geometry,
-    // event,
+    qs: lib
+  },
+  layer: layer // geometry,
+  // event,
 
-  }
 };
 
 if (typeof window !== 'undefined') {

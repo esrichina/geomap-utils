@@ -1,3 +1,50 @@
+import jsapi from '../jsapi';
+/**
+ * 初始化二维场景
+ * @author  lee  mapviewer-01
+ * @param {object} portal  portal地址
+ * @param {string} itemid  webmapId
+ * @param {string} container  地图的div
+ * @returns {object}  view 场景
+ */
+async function initMapView(portal, itemid, container) {
+  const [WebMap, MapView] = await jsapi.load(['esri/WebMap', 'esri/views/MapView']);
+  const webmap = new WebMap({
+    portalItem: {
+      id: itemid,
+      portal: portal,
+    },
+  });
+  const view = new MapView({
+    container: container,
+    map: webmap,
+    ui: {
+      components: [],
+    },
+  });
+  return view;
+}
+
+/**
+ * 通过webmapid 切换底图  适用于二三维场景
+ * @author  lee  mapviewer-02
+ * @param {object} view 场景
+ * @param {string} webmapId webmap的itmid
+ */
+async function switchBaseMapByWebmapId(view, webmapId) {
+  const [WebMap] = await jsapi.load(['esri/WebMap']);
+  const map = new WebMap({
+    portalItem: {
+      id: webmapId,
+    },
+  });
+  map.load().then(function () {
+    map.basemap.load().then(function () {
+      view.map.basemap = map.basemap;
+    });
+  });
+}
+
 /**
  * 根据图层的title获取图层
  * @author  lee  
@@ -96,7 +143,25 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
     );
   }
 }
+/**
+ * 点对象数组转换为线对象
+ * @author  liugh  20190627
+ * @param {Array} pointArr 点对象数组
+ * @return {Object} polyline  生成的线对象
+ */
+function pointArr2Line(pointArr){
+  const [Polyline] = await jsapi.load(['esri/geometry/Polyline']);
+  const ps = [];
+  pointArr.map((p)=>{
+    ps.push([p.longitude,p.latitude]);
+  });
+  ps.sort((a,b)=> a[0]-b[0]);
+  return new Polyline({
+    paths:[ps]
+  });
+}
 const mapViewUtil = {
+  initMapView,
   getLayerByTitle,
   getLayerByIndex,
   getLayerById,
@@ -104,6 +169,8 @@ const mapViewUtil = {
   highlightByLayerObjid,
   queryFeathersFromLayer,
   highlightByLayerGraphic,
+  switchBaseMapByWebmapId,
+  pointArr2Line,
 };
 
 export default mapViewUtil;
