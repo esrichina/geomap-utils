@@ -38,8 +38,8 @@ async function switchBaseMapByWebmapId(view, webmapId) {
       id: webmapId,
     },
   });
-  map.load().then(function () {
-    map.basemap.load().then(function () {
+  map.load().then(function() {
+    map.basemap.load().then(function() {
       view.map.basemap = map.basemap;
     });
   });
@@ -47,7 +47,7 @@ async function switchBaseMapByWebmapId(view, webmapId) {
 
 /**
  * 根据图层的title获取图层
- * @author  lee  20181209
+ * @author  lee  mapviewer-03
  * @param {object} view  场景
  * @param {string} title  名称
  */
@@ -57,10 +57,40 @@ function getLayerByTitle(view, title) {
   });
   return foundLayer;
 }
+
+/**
+ * 根据图层名称，控制图层显隐藏
+ * @author  lee  mapviewer-04
+ * @param {*} view  场景
+ * @param {*} title  名称
+ * @param {*} visible 显示/隐藏  true or false
+ */
+function setLayerVisible(view, title, visible) {
+  const foundLayer = getLayerByTitle(view, title);
+  foundLayer.visible = visible;
+}
+
+/**
+ * 点对象数组转换为线对象
+ * @author  liugh  mapviewer-05
+ * @param {Array} pointArr 点对象数组
+ * @return {Object} polyline  生成的线对象
+ */
+async function pointArr2Line(pointArr) {
+  const [Polyline] = await jsapi.load(['esri/geometry/Polyline']);
+  const ps = [];
+  pointArr.map(p => {
+    ps.push([p.longitude, p.latitude]);
+  });
+  return new Polyline({
+    paths: [ps],
+  });
+}
+
 /**
  * @summary 根据图层的索引获取图层
  * @description 适用范围：二、三维
- * @author  lee  20181209
+ * @author  lee
  * @param {*} view  场景
  * @param {*} index  图层索引
  */
@@ -70,7 +100,7 @@ function getLayerByIndex(view, index) {
 }
 /**
  * @summary 根据图层的id获取图层
- * @author  lee  20181209
+ * @author  lee
  * @param {*} view  场景
  * @param {*} id  图层id
  */
@@ -78,20 +108,10 @@ function getLayerById(view, index) {
   const foundLayer = view.map.findLayerById();
   return foundLayer;
 }
-/**
- * 根据图层名称，控制图层显隐藏
- * @author  lee  20181208
- * @param {*} view  场景
- * @param {*} title  名称
- * @param {*} visible 显示/隐藏  true or false
- */
-function setLayerVisible(view, title, visible) {
-  const foundLayer = getLayerByTitle(view, title);
-  foundLayer.visible = visible;
-}
+
 /**
  * 根据要素的ObjectId高亮
- * @author  lee  20181208
+ * @author  lee
  * @param {*} view  场景
  * @param {*} title  名称
  * @param {*} objectid 高亮要素的objectid
@@ -104,7 +124,7 @@ function highlightByLayerObjid(view, title, objectid) {
 }
 /**
  * 根据条件过滤要素图层中符合条件的要素
- * @author  lee  20181209
+ * @author  lee
  * @param {*} layer  图层
  * @param {*} queryWhere  查询条件
  */
@@ -115,7 +135,7 @@ function queryFeathersFromLayer(layer, queryWhere) {
 }
 /**
  * 根据图层,Graphic或Feature
- * @author  liugh  20181209
+ * @author  liugh
  * @param {*} view view
  * @param {*} layer 图层
  * @param {*} graphic  要高亮的要素
@@ -144,22 +164,30 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
   }
 }
 /**
- * 点对象数组转换为线对象
- * @author  liugh  20190627
- * @param {Array} pointArr 点对象数组
- * @return {Object} polyline  生成的线对象
+ * 根据点画缓冲区 
+ * @author liugh mapviewer-06
+ * @param {*} point 点对象
+ * @param {*} radius 缓冲范围 默认 5
+ * @param {*} radiusUnit 缓冲单位 默认 米
+ * @return {object} pointBuffer 缓冲对象
  */
-async function pointArr2Line(pointArr){
-  const [Polyline] = await jsapi.load(['esri/geometry/Polyline']);
-  const ps = [];
-  pointArr.map((p)=>{
-    ps.push([p.longitude,p.latitude]);
-  });
-  ps.sort((a,b)=> a[0]-b[0]);
-  return new Polyline({
-    paths:[ps]
-  });
+async function drawBuffer(point, radius, radiusUnit) {
+  if (!point) return null;
+  const radius = radius || 5;
+  const radiusUnit = radiusUnit || 'meters';
+  const [geometryEngine] = await jsapi.load(['esri/geometry/geometryEngine']);
+  const pointBuffer = geometryEngine.pointBuffer(point, radius, radiusUnit);
+  pointBuffer.symbol = {
+    type: 'simple-fill',
+    color: [140, 140, 222, 0.5],
+    outline: {
+      color: [0, 0, 0, 0.5],
+      width: 2,
+    },
+  };
+  return pointBuffer;
 }
+
 const mapViewUtil = {
   initMapView,
   getLayerByTitle,
@@ -171,6 +199,7 @@ const mapViewUtil = {
   highlightByLayerGraphic,
   switchBaseMapByWebmapId,
   pointArr2Line,
+  drawBuffer,
 };
 
 export default mapViewUtil;
