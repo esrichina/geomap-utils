@@ -1,6 +1,6 @@
 /**
  * 根据图层的title获取图层
- * @author  lee  20181209
+ * @author  lee  
  * @param {object} view  场景
  * @param {string} title  名称
  */
@@ -13,7 +13,7 @@ function getLayerByTitle(view, title) {
 /**
  * @summary 根据图层的索引获取图层
  * @description 适用范围：二、三维
- * @author  lee  20181209
+ * @author  lee  
  * @param {*} view  场景
  * @param {*} index  图层索引
  */
@@ -23,7 +23,7 @@ function getLayerByIndex(view, index) {
 }
 /**
  * @summary 根据图层的id获取图层
- * @author  lee  20181209
+ * @author  lee  
  * @param {*} view  场景
  * @param {*} id  图层id
  */
@@ -33,7 +33,7 @@ function getLayerById(view, index) {
 }
 /**
  * 根据图层名称，控制图层显隐藏
- * @author  lee  20181208
+ * @author  lee  
  * @param {*} view  场景
  * @param {*} title  名称
  * @param {*} visible 显示/隐藏  true or false
@@ -44,7 +44,7 @@ function setLayerVisible(view, title, visible) {
 }
 /**
  * 根据要素的ObjectId高亮
- * @author  lee  20181208
+ * @author  lee  
  * @param {*} view  场景
  * @param {*} title  名称
  * @param {*} objectid 高亮要素的objectid
@@ -57,7 +57,7 @@ function highlightByLayerObjid(view, title, objectid) {
 }
 /**
  * 根据条件过滤要素图层中符合条件的要素
- * @author  lee  20181209
+ * @author  lee  
  * @param {*} layer  图层
  * @param {*} queryWhere  查询条件
  */
@@ -68,7 +68,7 @@ function queryFeathersFromLayer(layer, queryWhere) {
 }
 /**
  * 根据图层,Graphic或Feature
- * @author  liugh  20181209
+ * @author  liugh  
  * @param {*} view view
  * @param {*} layer 图层
  * @param {*} graphic  要高亮的要素
