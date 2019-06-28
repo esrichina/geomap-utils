@@ -47,7 +47,7 @@ async function switchBaseMapByWebmapId(view, webmapId) {
 
 /**
  * 根据图层的title获取图层
- * @author  lee  
+ * @author  lee  mapviewer-03
  * @param {object} view  场景
  * @param {string} title  名称
  */
@@ -57,6 +57,37 @@ function getLayerByTitle(view, title) {
   });
   return foundLayer;
 }
+
+/**
+ * 根据图层名称，控制图层显隐藏
+ * @author  lee  mapviewer-04
+ * @param {*} view  场景
+ * @param {*} title  名称
+ * @param {*} visible 显示/隐藏  true or false
+ */
+function setLayerVisible(view, title, visible) {
+  const foundLayer = getLayerByTitle(view, title);
+  foundLayer.visible = visible;
+}
+
+/**
+ * 点对象数组转换为线对象
+ * @author  liugh  mapviewer-05
+ * @param {Array} pointArr 点对象数组
+ * @return {Object} polyline  生成的线对象
+ */
+function pointArr2Line(pointArr){
+  const [Polyline] = await jsapi.load(['esri/geometry/Polyline']);
+  const ps = [];
+  pointArr.map((p)=>{
+    ps.push([p.longitude,p.latitude]);
+  });
+  ps.sort((a,b)=> a[0]-b[0]);
+  return new Polyline({
+    paths:[ps]
+  });
+}
+
 /**
  * @summary 根据图层的索引获取图层
  * @description 适用范围：二、三维
@@ -78,17 +109,7 @@ function getLayerById(view, index) {
   const foundLayer = view.map.findLayerById();
   return foundLayer;
 }
-/**
- * 根据图层名称，控制图层显隐藏
- * @author  lee  
- * @param {*} view  场景
- * @param {*} title  名称
- * @param {*} visible 显示/隐藏  true or false
- */
-function setLayerVisible(view, title, visible) {
-  const foundLayer = getLayerByTitle(view, title);
-  foundLayer.visible = visible;
-}
+
 /**
  * 根据要素的ObjectId高亮
  * @author  lee  
@@ -143,23 +164,7 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
     );
   }
 }
-/**
- * 点对象数组转换为线对象
- * @author  liugh  20190627
- * @param {Array} pointArr 点对象数组
- * @return {Object} polyline  生成的线对象
- */
-function pointArr2Line(pointArr){
-  const [Polyline] = await jsapi.load(['esri/geometry/Polyline']);
-  const ps = [];
-  pointArr.map((p)=>{
-    ps.push([p.longitude,p.latitude]);
-  });
-  ps.sort((a,b)=> a[0]-b[0]);
-  return new Polyline({
-    paths:[ps]
-  });
-}
+
 const mapViewUtil = {
   initMapView,
   getLayerByTitle,
