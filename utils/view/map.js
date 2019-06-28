@@ -149,7 +149,7 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
  * @param {Array} pointArr 点对象数组
  * @return {Object} polyline  生成的线对象
  */
-function pointArr2Line(pointArr){
+async function pointArr2Line(pointArr){
   const [Polyline] = await jsapi.load(['esri/geometry/Polyline']);
   const ps = [];
   pointArr.map((p)=>{
