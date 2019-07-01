@@ -69,7 +69,7 @@ function roamByLongtitude(view) {
 
 /**
  * 根据幻灯片的名称，切换到对应的视角
- * @author  lee
+ * @author  lee  sceneviewer-04
  * @param {*} view  场景
  * @param {*} title  幻灯片的名称
  */
