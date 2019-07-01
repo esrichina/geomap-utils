@@ -1,5 +1,5 @@
 /*!
-  * geomap-utils v0.1.0
+  * geomap-utils v0.2.0
   * (c) 2019 Esri China PS
   * @license MIT
   */
@@ -9,10 +9,6 @@ var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof win
 
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
-function getCjsExportFromNamespace (n) {
-	return n && n['default'] || n;
 }
 
 var _global = createCommonjsModule(function (module) {
@@ -131,7 +127,7 @@ var store = _global[SHARED] || (_global[SHARED] = {});
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
   version: _core.version,
-  mode: 'global',
+  mode:  'global',
   copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
 });
 });
@@ -473,6 +469,67 @@ _export(_export.P + _export.F * forced$1, 'Array', {
   }
 });
 _addToUnscopables(KEY$1);
+
+// https://tc39.github.io/proposal-flatMap/#sec-FlattenIntoArray
+
+
+
+
+var IS_CONCAT_SPREADABLE = _wks('isConcatSpreadable');
+
+function flattenIntoArray(target, original, source, sourceLen, start, depth, mapper, thisArg) {
+  var targetIndex = start;
+  var sourceIndex = 0;
+  var mapFn = mapper ? _ctx(mapper, thisArg, 3) : false;
+  var element, spreadable;
+
+  while (sourceIndex < sourceLen) {
+    if (sourceIndex in source) {
+      element = mapFn ? mapFn(source[sourceIndex], sourceIndex, original) : source[sourceIndex];
+
+      spreadable = false;
+      if (_isObject(element)) {
+        spreadable = element[IS_CONCAT_SPREADABLE];
+        spreadable = spreadable !== undefined ? !!spreadable : _isArray(element);
+      }
+
+      if (spreadable && depth > 0) {
+        targetIndex = flattenIntoArray(target, original, element, _toLength(element.length), targetIndex, depth - 1) - 1;
+      } else {
+        if (targetIndex >= 0x1fffffffffffff) throw TypeError();
+        target[targetIndex] = element;
+      }
+
+      targetIndex++;
+    }
+    sourceIndex++;
+  }
+  return targetIndex;
+}
+
+var _flattenIntoArray = flattenIntoArray;
+
+// https://tc39.github.io/proposal-flatMap/#sec-Array.prototype.flatMap
+
+
+
+
+
+
+
+_export(_export.P, 'Array', {
+  flatMap: function flatMap(callbackfn /* , thisArg */) {
+    var O = _toObject(this);
+    var sourceLen, A;
+    _aFunction(callbackfn);
+    sourceLen = _toLength(O.length);
+    A = _arraySpeciesCreate(O, 0);
+    _flattenIntoArray(A, O, O, sourceLen, 0, 1, callbackfn, arguments[1]);
+    return A;
+  }
+});
+
+_addToUnscopables('flatMap');
 
 var $forEach = _arrayMethods(0);
 var STRICT = _strictMethod([].forEach, true);
@@ -817,7 +874,7 @@ var _iterDefine = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORC
       // Set @@toStringTag to native iterators
       _setToStringTag(IteratorPrototype, TAG, true);
       // fix for some old engines
-      if (typeof IteratorPrototype[ITERATOR$3] != 'function') _hide(IteratorPrototype, ITERATOR$3, returnThis);
+      if ( typeof IteratorPrototype[ITERATOR$3] != 'function') _hide(IteratorPrototype, ITERATOR$3, returnThis);
     }
   }
   // fix Array#{values, @@iterator}.name in V8 / FF
@@ -826,7 +883,7 @@ var _iterDefine = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORC
     $default = function values() { return $native.call(this); };
   }
   // Define iterator
-  if (BUGGY || VALUES_BUG || !proto[ITERATOR$3]) {
+  if ( (BUGGY || VALUES_BUG || !proto[ITERATOR$3])) {
     _hide(proto, ITERATOR$3, $default);
   }
   // Plug for library
@@ -2010,7 +2067,7 @@ _export(_export.S + _export.F, 'Object', { assign: _objectAssign });
 _export(_export.S, 'Object', { create: _objectCreate });
 
 // Forced replacement prototype accessors methods
-var _objectForcedPam = !_fails(function () {
+var _objectForcedPam =  !_fails(function () {
   var K = Math.random();
   // In FF throws only define methods
   // eslint-disable-next-line no-undef, no-useless-call
@@ -2208,6 +2265,16 @@ _objectSap('preventExtensions', function ($preventExtensions) {
     return $preventExtensions && _isObject(it) ? $preventExtensions(meta$1(it)) : it;
   };
 });
+
+// 19.1.3.6 Object.prototype.toString()
+
+var test$1 = {};
+test$1[_wks('toStringTag')] = 'z';
+if (test$1 + '' != '[object z]') {
+  _redefine(Object.prototype, 'toString', function toString() {
+    return '[object ' + _classof(this) + ']';
+  }, true);
+}
 
 // 7.2.9 SameValue(x, y)
 var _sameValue = Object.is || function is(x, y) {
@@ -2707,10 +2774,10 @@ _export(_export.S + _export.F * !USE_NATIVE, PROMISE, {
     return capability.promise;
   }
 });
-_export(_export.S + _export.F * (!USE_NATIVE), PROMISE, {
+_export(_export.S + _export.F * ( !USE_NATIVE), PROMISE, {
   // 25.4.4.6 Promise.resolve(x)
   resolve: function resolve(x) {
-    return _promiseResolve(this, x);
+    return _promiseResolve( this, x);
   }
 });
 _export(_export.S + _export.F * !(USE_NATIVE && _iterDetect(function (iter) {
@@ -3610,7 +3677,7 @@ var _wksExt = {
 
 var defineProperty = _objectDp.f;
 var _wksDefine = function (name) {
-  var $Symbol = _core.Symbol || (_core.Symbol = _global.Symbol || {});
+  var $Symbol = _core.Symbol || (_core.Symbol =  _global.Symbol || {});
   if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty($Symbol, name, { value: _wksExt.f(name) });
 };
 
@@ -4174,6 +4241,20 @@ _stringTrim('trim', function ($trim) {
     return $trim(this, 3);
   };
 });
+
+// https://github.com/sebmarkbage/ecmascript-string-left-right-trim
+_stringTrim('trimLeft', function ($trim) {
+  return function trimLeft() {
+    return $trim(this, 1);
+  };
+}, 'trimStart');
+
+// https://github.com/sebmarkbage/ecmascript-string-left-right-trim
+_stringTrim('trimRight', function ($trim) {
+  return function trimRight() {
+    return $trim(this, 2);
+  };
+}, 'trimEnd');
 
 var TYPED = _uid('typed_array');
 var VIEW = _uid('view');
@@ -6014,7 +6095,7 @@ var runtime = (function (exports) {
   // as the regeneratorRuntime namespace. Otherwise create a new empty
   // object. Either way, the resulting object will be used to initialize
   // the regeneratorRuntime variable at the top of this file.
-  module.exports
+   module.exports 
 ));
 
 try {
@@ -6033,44 +6114,97 @@ try {
 }
 });
 
-function createStylesheetLink(url) {
+/* Copyright (c) 2017 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
+var DEFAULT_VERSION = '4.11';
+function parseVersion(version) {
+    var match = version && version.match(/^(\d)\.(\d+)/);
+    return match && {
+        major: parseInt(match[1], 10),
+        minor: parseInt(match[2], 10)
+    };
+}
+/**
+ * Get the CDN url for a given version
+ *
+ * @param version Ex: '4.11' or '3.28'. Defaults to the latest 4.x version.
+ */
+function getCdnUrl(version) {
+    if (version === void 0) { version = DEFAULT_VERSION; }
+    return "https://js.arcgis.com/" + version + "/";
+}
+/**
+ * Get the CDN url for a the CSS for a given version and/or theme
+ *
+ * @param version Ex: '4.11' or '3.28'. Defaults to the latest 4.x version.
+ */
+function getCdnCssUrl(version) {
+    if (version === void 0) { version = DEFAULT_VERSION; }
+    var baseUrl = getCdnUrl(version);
+    var parsedVersion = parseVersion(version);
+    if (parsedVersion.major === 3) {
+        // NOTE: at 3.11 the CSS moved from the /js folder to the root
+        var path = parsedVersion.minor <= 10 ? 'js/' : '';
+        return "" + baseUrl + path + "esri/css/esri.css";
+    }
+    else {
+        // assume 4.x
+        return baseUrl + "esri/css/main.css";
+    }
+}
+
+/* Copyright (c) 2017 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
+function createStylesheetLink(href) {
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = url;
+    link.href = href;
     return link;
 }
-// TODO: export this function?
+function insertLink(link, before) {
+    if (before) {
+        // the link should be inserted before a specific node
+        var beforeNode = document.querySelector(before);
+        beforeNode.parentNode.insertBefore(link, beforeNode);
+    }
+    else {
+        // append the link to then end of the head tag
+        document.head.appendChild(link);
+    }
+}
 // check if the css url has been injected or added manually
 function getCss(url) {
     return document.querySelector("link[href*=\"" + url + "\"]");
 }
+function getCssUrl(urlOrVersion) {
+    return !urlOrVersion || parseVersion(urlOrVersion)
+        // if it's a valid version string return the CDN URL
+        ? getCdnCssUrl(urlOrVersion)
+        // otherwise assume it's a URL and return that
+        : urlOrVersion;
+}
 // lazy load the CSS needed for the ArcGIS API
-function loadCss(url) {
+function loadCss(urlOrVersion, before) {
+    var url = getCssUrl(urlOrVersion);
     var link = getCss(url);
     if (!link) {
-        // create & load the css library
+        // create & load the css link
         link = createStylesheetLink(url);
-        document.head.appendChild(link);
+        insertLink(link, before);
     }
     return link;
 }
 
-/*
-  Copyright 2017 Esri
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/
+/* Copyright (c) 2017 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
 var isBrowser = typeof window !== 'undefined';
-var DEFAULT_URL = 'https://js.arcgis.com/4.10/';
-// this is the url that is currently being, or already has loaded
-var _currentUrl;
+// allow consuming libraries to provide their own Promise implementations
+var utils = {
+    Promise: isBrowser ? window['Promise'] : undefined
+};
+
+/* Copyright (c) 2017 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
 function createScript(url) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
@@ -6109,10 +6243,6 @@ function handleScriptError(script, callback) {
     script.addEventListener('error', onScriptError, false);
     return onScriptError;
 }
-// allow consuming libraries to provide their own Promise implementations
-var utils = {
-    Promise: isBrowser ? window['Promise'] : undefined
-};
 // get the script injected by this library
 function getScript() {
     return document.querySelector('script[data-esri-loader]');
@@ -6126,10 +6256,9 @@ function isLoaded() {
 // load the ArcGIS API on the page
 function loadScript(options) {
     if (options === void 0) { options = {}; }
-    // default options
-    if (!options.url) {
-        options.url = DEFAULT_URL;
-    }
+    // URL to load
+    var version = options.version;
+    var url = options.url || getCdnUrl(version);
     return new utils.Promise(function (resolve, reject) {
         var script = getScript();
         if (script) {
@@ -6137,7 +6266,7 @@ function loadScript(options) {
             // NOTE: have to test against scr attribute value, not script.src
             // b/c the latter will return the full url for relative paths
             var src = script.getAttribute('src');
-            if (src !== options.url) {
+            if (src !== url) {
                 // potentially trying to load a different version of the API
                 reject(new Error("The ArcGIS API for JavaScript is already loaded (" + src + ")."));
             }
@@ -6160,17 +6289,19 @@ function loadScript(options) {
             }
             else {
                 // this is the first time attempting to load the API
-                if (options.css) {
+                var css = options.css;
+                if (css) {
+                    var useVersion = css === true;
                     // load the css before loading the script
-                    loadCss(options.css);
+                    loadCss(useVersion ? version : css, options.insertCssBefore);
                 }
                 if (options.dojoConfig) {
                     // set dojo configuration parameters before loading the script
                     window['dojoConfig'] = options.dojoConfig;
                 }
                 // create a script object whose source points to the API
-                script = createScript(options.url);
-                _currentUrl = options.url;
+                script = createScript(url);
+                // _currentUrl = url;
                 // once the script is loaded...
                 handleScriptLoad(script, function () {
                     // update the status of the script
@@ -6184,7 +6315,10 @@ function loadScript(options) {
         }
     });
 }
-// wrap dojo's require() in a promise
+
+/* Copyright (c) 2017 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
+// wrap Dojo's require() in a promise
 function requireModules(modules) {
     return new utils.Promise(function (resolve, reject) {
         // If something goes wrong loading the esri/dojo scripts, reject with the error.
@@ -6206,12 +6340,16 @@ function requireModules(modules) {
 function loadModules(modules, loadScriptOptions) {
     if (loadScriptOptions === void 0) { loadScriptOptions = {}; }
     if (!isLoaded()) {
-        // script is not yet loaded
-        if (!loadScriptOptions.url && _currentUrl) {
-            // alredy in the process of loading, so default to the same url
-            loadScriptOptions.url = _currentUrl;
+        // script is not yet loaded, is it in the process of loading?
+        var script = getScript();
+        var src = script && script.getAttribute('src');
+        if (!loadScriptOptions.url && src) {
+            // script is still loading and user did not specify a URL
+            // in this case we want to default to the URL that's being loaded
+            // instead of defaulting to the latest 4.x URL
+            loadScriptOptions.url = src;
         }
-        // attept to load the script then load the modules
+        // attempt to load the script then load the modules
         return loadScript(loadScriptOptions).then(function () { return requireModules(modules); });
     }
     else {
@@ -6219,18 +6357,30 @@ function loadModules(modules, loadScriptOptions) {
         return requireModules(modules);
     }
 }
+
+/*
+  Copyright (c) 2017 Esri
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 // NOTE: rollup ignores the default export
-// and builds the UMD namespace out of named exports
+// and builds the UMD namespace out of the above named exports
 // so this is only needed so that consumers of the ESM build
 // can do esriLoader.loadModules(), etc
-// TODO: remove this next breaking change?
+// TODO: remove this next breaking change
 var esriLoader = {
     getScript: getScript,
     isLoaded: isLoaded,
     loadModules: loadModules,
     loadScript: loadScript,
     loadCss: loadCss,
-    // TODO: export getCss too?
     utils: utils
 };
 
@@ -6400,7 +6550,7 @@ function _initMapView() {
             return _context.stop();
         }
       }
-    }, _callee, this);
+    }, _callee);
   }));
   return _initMapView.apply(this, arguments);
 }
@@ -6449,7 +6599,7 @@ function _switchBaseMapByWebmapId() {
             return _context2.stop();
         }
       }
-    }, _callee2, this);
+    }, _callee2);
   }));
   return _switchBaseMapByWebmapId.apply(this, arguments);
 }
@@ -6485,11 +6635,12 @@ function pointArr2Line(_x6) {
   return _pointArr2Line.apply(this, arguments);
 }
 /**
- * @summary 根据图层的索引获取图层
- * @description 适用范围：二、三维
- * @author  lee
- * @param {*} view  场景
- * @param {*} index  图层索引
+ * 根据点画缓冲区
+ * @author liugh mapviewer-06
+ * @param {*} point 点对象
+ * @param {*} radius 缓冲范围 默认 5
+ * @param {*} radiusUnit 缓冲单位 默认 米
+ * @return {object} pointBuffer 缓冲对象
  */
 
 
@@ -6523,127 +6674,59 @@ function _pointArr2Line() {
             return _context3.stop();
         }
       }
-    }, _callee3, this);
+    }, _callee3);
   }));
   return _pointArr2Line.apply(this, arguments);
 }
 
-function getLayerByIndex(view, index) {
-  var foundLayer = view.map.layers.getItemAt(index);
-  return foundLayer;
-}
-/**
- * @summary 根据图层的id获取图层
- * @author  lee
- * @param {*} view  场景
- * @param {*} id  图层id
- */
-
-
-function getLayerById(view, index) {
-  var foundLayer = view.map.findLayerById();
-  return foundLayer;
-}
-/**
- * 根据要素的ObjectId高亮
- * @author  lee
- * @param {*} view  场景
- * @param {*} title  名称
- * @param {*} objectid 高亮要素的objectid
- */
-
-
-function highlightByLayerObjid(view, title, objectid) {
-  var foundLayer = getLayerByTitle(view, title);
-  view.whenLayerView(foundLayer).then(function (view) {
-    view.highlight(objectid * 1);
-  });
-}
-/**
- * 根据条件过滤要素图层中符合条件的要素
- * @author  lee
- * @param {*} layer  图层
- * @param {*} queryWhere  查询条件
- */
-
-
-function queryFeathersFromLayer(layer, queryWhere) {
-  var queryString = layer.createQuery();
-  queryString.where = queryWhere;
-  return layer.queryFeatures(queryString);
-}
-/**
- * 根据图层,Graphic或Feature
- * @author  liugh
- * @param {*} view view
- * @param {*} layer 图层
- * @param {*} graphic  要高亮的要素
- * @param {*} isGoto 是否跳转
- */
-
-
-function highlightByLayerGraphic(view, layer, graphic, isGoto) {
-  var highlightSelect = null;
-  view.whenLayerView(layer).then(function (layerView) {
-    if (highlightSelect) highlightSelect.remove();
-    highlightSelect = layerView.highlight(graphic);
-  });
-  view.on('click', function (e) {
-    if (highlightSelect) highlightSelect.remove();
-  });
-
-  if (isGoto) {
-    view.goTo({
-      target: graphic.geometry,
-      tilt: 70
-    }, {
-      duration: 2000,
-      easing: 'in-out-expo'
-    });
-  }
-}
-/**
- * 根据点画缓冲区
- * @author liugh mapviewer-06
- * @param {*} point 点对象
- * @param {*} radius 缓冲范围 默认 5
- * @param {*} radiusUnit 缓冲单位 默认 米
- * @return {object} pointBuffer 缓冲对象
- */
-
-
-function drawBuffer(_x7, _x8, _x9) {
+function drawBuffer(_x7) {
   return _drawBuffer.apply(this, arguments);
 }
+/**
+ * 根据图层的title删除图层
+ * @author  lee  mapviewer-07
+ * @param {object} view  场景
+ * @param {string} title  名称
+ */
+
 
 function _drawBuffer() {
   _drawBuffer = asyncToGenerator(
   /*#__PURE__*/
-  regenerator.mark(function _callee4(point, wishRadius, wishRadiusUnit) {
-    var radius, radiusUnit, _ref7, _ref8, geometryEngine, pointBuffer;
+  regenerator.mark(function _callee4(point) {
+    var wishRadius,
+        wishRadiusUnit,
+        radiusUnit,
+        _ref7,
+        _ref8,
+        geometryEngine,
+        pointBuffer,
+        _args4 = arguments;
 
     return regenerator.wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
+            wishRadius = _args4.length > 1 && _args4[1] !== undefined ? _args4[1] : 5;
+            wishRadiusUnit = _args4.length > 2 ? _args4[2] : undefined;
+
             if (point) {
-              _context4.next = 2;
+              _context4.next = 4;
               break;
             }
 
             return _context4.abrupt("return", null);
 
-          case 2:
-            radius = wishRadius || 5;
+          case 4:
             radiusUnit = wishRadiusUnit || 'meters';
-            _context4.next = 6;
+            _context4.next = 7;
             return jsapi.load(['esri/geometry/geometryEngine']);
 
-          case 6:
+          case 7:
             _ref7 = _context4.sent;
             _ref8 = slicedToArray(_ref7, 1);
             geometryEngine = _ref8[0];
-            pointBuffer = geometryEngine.pointBuffer(point, radius, radiusUnit);
+            pointBuffer = geometryEngine.pointBuffer(point, wishRadius, radiusUnit);
             pointBuffer.symbol = {
               type: 'simple-fill',
               color: [140, 140, 222, 0.5],
@@ -6654,36 +6737,223 @@ function _drawBuffer() {
             };
             return _context4.abrupt("return", pointBuffer);
 
-          case 12:
+          case 13:
           case "end":
             return _context4.stop();
         }
       }
-    }, _callee4, this);
+    }, _callee4);
   }));
   return _drawBuffer.apply(this, arguments);
 }
 
+function removeLayerByTitle(view, title) {
+  var foundLayer = view.map.layers.find(function (lyr) {
+    return lyr.title === title;
+  });
+  view.map.remove(foundLayer);
+}
+/**
+ * 根据条件添加镶嵌数据集的某一副影像
+ * @author  lee  mapviewer-15
+ * @param {object} view  场景
+ * @param {string} layerUrl  镶嵌数据集服务地址
+ * @param {string} attribute  属性名称
+ * @param {string} value  属性值
+ * @param {string} goto  是否goto
+ */
+
+
+function addImageryLayer(_x8, _x9, _x10, _x11, _x12) {
+  return _addImageryLayer.apply(this, arguments);
+}
+
+function _addImageryLayer() {
+  _addImageryLayer = asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee6(view, layerUrl, attribute, value, _goto) {
+    var _ref9, _ref10, ImageryLayer, AirportDensityLayer;
+
+    return regenerator.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            _context6.next = 2;
+            return jsapi.load(['esri/layers/ImageryLayer']);
+
+          case 2:
+            _ref9 = _context6.sent;
+            _ref10 = slicedToArray(_ref9, 1);
+            ImageryLayer = _ref10[0];
+            AirportDensityLayer = new ImageryLayer({
+              title: '镶嵌数据集查询结果图层',
+              url: layerUrl,
+              mosaicRule: {
+                mosaicMethod: 'esriMosaicAttribute',
+                where: attribute + "='" + value + "'"
+              }
+            });
+            view.map.add(AirportDensityLayer);
+
+            if (_goto) {
+              AirportDensityLayer.when(
+              /*#__PURE__*/
+              asyncToGenerator(
+              /*#__PURE__*/
+              regenerator.mark(function _callee5() {
+                var _ref12, _ref13, QueryTask, Query, queryTask, query;
+
+                return regenerator.wrap(function _callee5$(_context5) {
+                  while (1) {
+                    switch (_context5.prev = _context5.next) {
+                      case 0:
+                        _context5.next = 2;
+                        return jsapi.load(['esri/tasks/QueryTask', 'esri/tasks/support/Query']);
+
+                      case 2:
+                        _ref12 = _context5.sent;
+                        _ref13 = slicedToArray(_ref12, 2);
+                        QueryTask = _ref13[0];
+                        Query = _ref13[1];
+                        queryTask = new QueryTask({
+                          url: layerUrl
+                        });
+                        query = new Query();
+                        query.where = attribute + "='" + value + "'";
+                        query.returnGeometry = true;
+                        query.outFields = ['*'];
+                        queryTask.execute(query).then(function (results) {
+                          view.goTo({
+                            target: results.features[0]
+                          });
+                        });
+
+                      case 12:
+                      case "end":
+                        return _context5.stop();
+                    }
+                  }
+                }, _callee5);
+              })));
+            }
+
+          case 8:
+          case "end":
+            return _context6.stop();
+        }
+      }
+    }, _callee6);
+  }));
+  return _addImageryLayer.apply(this, arguments);
+}
+
 var mapViewUtil = {
   initMapView: initMapView,
-  getLayerByTitle: getLayerByTitle,
-  getLayerByIndex: getLayerByIndex,
-  getLayerById: getLayerById,
-  setLayerVisible: setLayerVisible,
-  highlightByLayerObjid: highlightByLayerObjid,
-  queryFeathersFromLayer: queryFeathersFromLayer,
-  highlightByLayerGraphic: highlightByLayerGraphic,
+  //mapviewer-01
   switchBaseMapByWebmapId: switchBaseMapByWebmapId,
+  //mapviewer-02
+  getLayerByTitle: getLayerByTitle,
+  //mapviewer-03
+  setLayerVisible: setLayerVisible,
+  //mapviewer-04
   pointArr2Line: pointArr2Line,
-  drawBuffer: drawBuffer
+  //mapviewer-05
+  drawBuffer: drawBuffer,
+  //mapviewer-06
+  removeLayerByTitle: removeLayerByTitle,
+  //mapviewer-07
+  addImageryLayer: addImageryLayer //mapviewer-15
+
 };
 
 /**
- * 环绕漫游 环绕漫游（longitude）比如：整个地图旋转
- * @no sceneviewer-03
- * @author  lee
+ * 初始化三维场景
+ * @author  lee  sceneviewer-01
+ * @param {object} portal  portal地址
+ * @param {string} itemid  webscenenId
+ * @param {string} container  地图的div
+ */
+
+function initSceneView(_x, _x2, _x3) {
+  return _initSceneView.apply(this, arguments);
+}
+/**
+ * 环绕漫游（heading）比如：沿着建筑漫游
+ * @author  lee  sceneviewer-02
  * @param {object} view  三维场景
  */
+
+
+function _initSceneView() {
+  _initSceneView = asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee(portal, itemid, container) {
+    var _ref, _ref2, WebScene, Sceneview, scene, view;
+
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return jsapi.load(['esri/WebScene', 'esri/views/SceneView']);
+
+          case 2:
+            _ref = _context.sent;
+            _ref2 = slicedToArray(_ref, 2);
+            WebScene = _ref2[0];
+            Sceneview = _ref2[1];
+            scene = new WebScene({
+              portalItem: {
+                id: itemid,
+                portal: portal
+              }
+            });
+            view = new Sceneview({
+              container: container,
+              map: scene,
+              environment: {
+                atmosphere: {
+                  // creates a realistic view of the atmosphere
+                  quality: 'high'
+                }
+              },
+              ui: {
+                components: [] // 'zoom', 'navigation-toggle', 'compass'
+
+              }
+            });
+            return _context.abrupt("return", view);
+
+          case 9:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _initSceneView.apply(this, arguments);
+}
+
+var roamHandle;
+
+function roamByHeading(view) {
+  if (roamHandle) {
+    clearInterval(roamHandle);
+    roamHandle = null;
+  } else {
+    roamHandle = setInterval(function () {
+      view.goTo({
+        heading: view.camera.heading + 0.5
+      });
+    }, 100);
+  }
+}
+/**
+ * 环绕漫游 环绕漫游（longitude）比如：整个地图旋转
+ * @author  lee  sceneviewer-03
+ * @param {object} view  三维场景
+ */
+
 
 var roamByLongtitudeInterval;
 
@@ -6698,7 +6968,14 @@ function roamByLongtitude(view) {
       view.goTo(camera);
     }, 100);
   }
-} // export { roamByLongtitude }
+}
+/**
+ * 根据幻灯片的名称，切换到对应的视角
+ * @author  lee  sceneviewer-04
+ * @param {*} view  场景
+ * @param {*} title  幻灯片的名称
+ */
+
 
 function gotoBySliderName(view, title) {
   var slides = view.map.presentation.slides.items;
@@ -6713,10 +6990,63 @@ function gotoBySliderName(view, title) {
     }
   });
 }
+/**
+ * 切换三维的旋转方式：平移或者渲染
+ * @author  lee  sceneviewer-05
+ * @param {object} view  三维场景
+ * @param {string} tool  pan or rotate
+ */
+
+
+function changeToggle(_x4, _x5) {
+  return _changeToggle.apply(this, arguments);
+}
+
+function _changeToggle() {
+  _changeToggle = asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee2(view, tool) {
+    var _ref3, _ref4, NavigationToggleViewModel, vm;
+
+    return regenerator.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.next = 2;
+            return jsapi.load(['esri/widgets/NavigationToggle/NavigationToggleViewModel']);
+
+          case 2:
+            _ref3 = _context2.sent;
+            _ref4 = slicedToArray(_ref3, 1);
+            NavigationToggleViewModel = _ref4[0];
+            vm = new NavigationToggleViewModel();
+            vm.view = view;
+
+            if (vm.navigationMode !== tool) {
+              vm.toggle();
+            }
+
+          case 8:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+  return _changeToggle.apply(this, arguments);
+}
 
 var sceneViewUtil = {
+  initSceneView: initSceneView,
+  //sceneviewer-01
+  roamByHeading: roamByHeading,
+  //sceneviewer-02
   gotoBySliderName: gotoBySliderName,
-  roamByLongtitude: roamByLongtitude
+  //sceneviewer-03
+  roamByLongtitude: roamByLongtitude,
+  //sceneviewer-04
+  changeToggle: changeToggle //sceneviewer-05
+
 };
 
 var viewUtil = {
@@ -7167,7 +7497,7 @@ var lodash = createCommonjsModule(function (module, exports) {
   var root = freeGlobal || freeSelf || Function('return this')();
 
   /** Detect free variable `exports`. */
-  var freeExports = exports && !exports.nodeType && exports;
+  var freeExports =  exports && !exports.nodeType && exports;
 
   /** Detect free variable `module`. */
   var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
@@ -23878,7 +24208,7 @@ function () {
                 return _context.stop();
             }
           }
-        }, _callee, this);
+        }, _callee);
       }));
 
       function beforeOnLoad() {
@@ -23901,7 +24231,7 @@ function () {
                 return _context2.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee2);
       }));
 
       function afterUnload() {
@@ -24137,6 +24467,7 @@ var js_cookie = createCommonjsModule(function (module, exports) {
 });
 
 var has = Object.prototype.hasOwnProperty;
+var isArray = Array.isArray;
 
 var hexTable = (function () {
     var array = [];
@@ -24152,7 +24483,7 @@ var compactQueue = function compactQueue(queue) {
         var item = queue.pop();
         var obj = item.obj[item.prop];
 
-        if (Array.isArray(obj)) {
+        if (isArray(obj)) {
             var compacted = [];
 
             for (var j = 0; j < obj.length; ++j) {
@@ -24183,9 +24514,9 @@ var merge = function merge(target, source, options) {
     }
 
     if (typeof source !== 'object') {
-        if (Array.isArray(target)) {
+        if (isArray(target)) {
             target.push(source);
-        } else if (typeof target === 'object') {
+        } else if (target && typeof target === 'object') {
             if ((options && (options.plainObjects || options.allowPrototypes)) || !has.call(Object.prototype, source)) {
                 target[source] = true;
             }
@@ -24196,20 +24527,21 @@ var merge = function merge(target, source, options) {
         return target;
     }
 
-    if (typeof target !== 'object') {
+    if (!target || typeof target !== 'object') {
         return [target].concat(source);
     }
 
     var mergeTarget = target;
-    if (Array.isArray(target) && !Array.isArray(source)) {
+    if (isArray(target) && !isArray(source)) {
         mergeTarget = arrayToObject(target, options);
     }
 
-    if (Array.isArray(target) && Array.isArray(source)) {
+    if (isArray(target) && isArray(source)) {
         source.forEach(function (item, i) {
             if (has.call(target, i)) {
-                if (target[i] && typeof target[i] === 'object') {
-                    target[i] = merge(target[i], item, options);
+                var targetItem = target[i];
+                if (targetItem && typeof targetItem === 'object' && item && typeof item === 'object') {
+                    target[i] = merge(targetItem, item, options);
                 } else {
                     target.push(item);
                 }
@@ -24340,7 +24672,7 @@ var isRegExp = function isRegExp(obj) {
 };
 
 var isBuffer = function isBuffer(obj) {
-    if (obj === null || typeof obj === 'undefined') {
+    if (!obj || typeof obj !== 'object') {
         return false;
     }
 
@@ -24380,10 +24712,13 @@ var formats = {
     RFC3986: 'RFC3986'
 };
 
+var has$1 = Object.prototype.hasOwnProperty;
+
 var arrayPrefixGenerators = {
     brackets: function brackets(prefix) { // eslint-disable-line func-name-matching
         return prefix + '[]';
     },
+    comma: 'comma',
     indices: function indices(prefix, key) { // eslint-disable-line func-name-matching
         return prefix + '[' + key + ']';
     },
@@ -24392,10 +24727,10 @@ var arrayPrefixGenerators = {
     }
 };
 
-var isArray = Array.isArray;
+var isArray$1 = Array.isArray;
 var push = Array.prototype.push;
 var pushToArray = function (arr, valueOrArray) {
-    push.apply(arr, isArray(valueOrArray) ? valueOrArray : [valueOrArray]);
+    push.apply(arr, isArray$1(valueOrArray) ? valueOrArray : [valueOrArray]);
 };
 
 var toISO = Date.prototype.toISOString;
@@ -24409,6 +24744,7 @@ var defaults = {
     encode: true,
     encoder: utils$1.encode,
     encodeValuesOnly: false,
+    formatter: formats.formatters[formats['default']],
     // deprecated
     indices: false,
     serializeDate: function serializeDate(date) { // eslint-disable-line func-name-matching
@@ -24438,6 +24774,8 @@ var stringify = function stringify( // eslint-disable-line func-name-matching
         obj = filter(prefix, obj);
     } else if (obj instanceof Date) {
         obj = serializeDate(obj);
+    } else if (generateArrayPrefix === 'comma' && isArray$1(obj)) {
+        obj = obj.join(',');
     }
 
     if (obj === null) {
@@ -24463,7 +24801,7 @@ var stringify = function stringify( // eslint-disable-line func-name-matching
     }
 
     var objKeys;
-    if (Array.isArray(filter)) {
+    if (isArray$1(filter)) {
         objKeys = filter;
     } else {
         var keys = Object.keys(obj);
@@ -24477,10 +24815,10 @@ var stringify = function stringify( // eslint-disable-line func-name-matching
             continue;
         }
 
-        if (Array.isArray(obj)) {
+        if (isArray$1(obj)) {
             pushToArray(values, stringify(
                 obj[key],
-                generateArrayPrefix(prefix, key),
+                typeof generateArrayPrefix === 'function' ? generateArrayPrefix(prefix, key) : prefix,
                 generateArrayPrefix,
                 strictNullHandling,
                 skipNulls,
@@ -24515,41 +24853,63 @@ var stringify = function stringify( // eslint-disable-line func-name-matching
     return values;
 };
 
-var stringify_1 = function (object, opts) {
-    var obj = object;
-    var options = opts ? utils$1.assign({}, opts) : {};
+var normalizeStringifyOptions = function normalizeStringifyOptions(opts) {
+    if (!opts) {
+        return defaults;
+    }
 
-    if (options.encoder !== null && options.encoder !== undefined && typeof options.encoder !== 'function') {
+    if (opts.encoder !== null && opts.encoder !== undefined && typeof opts.encoder !== 'function') {
         throw new TypeError('Encoder has to be a function.');
     }
 
-    var delimiter = typeof options.delimiter === 'undefined' ? defaults.delimiter : options.delimiter;
-    var strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : defaults.strictNullHandling;
-    var skipNulls = typeof options.skipNulls === 'boolean' ? options.skipNulls : defaults.skipNulls;
-    var encode = typeof options.encode === 'boolean' ? options.encode : defaults.encode;
-    var encoder = typeof options.encoder === 'function' ? options.encoder : defaults.encoder;
-    var sort = typeof options.sort === 'function' ? options.sort : null;
-    var allowDots = typeof options.allowDots === 'undefined' ? defaults.allowDots : !!options.allowDots;
-    var serializeDate = typeof options.serializeDate === 'function' ? options.serializeDate : defaults.serializeDate;
-    var encodeValuesOnly = typeof options.encodeValuesOnly === 'boolean' ? options.encodeValuesOnly : defaults.encodeValuesOnly;
-    var charset = options.charset || defaults.charset;
-    if (typeof options.charset !== 'undefined' && options.charset !== 'utf-8' && options.charset !== 'iso-8859-1') {
-        throw new Error('The charset option must be either utf-8, iso-8859-1, or undefined');
+    var charset = opts.charset || defaults.charset;
+    if (typeof opts.charset !== 'undefined' && opts.charset !== 'utf-8' && opts.charset !== 'iso-8859-1') {
+        throw new TypeError('The charset option must be either utf-8, iso-8859-1, or undefined');
     }
 
-    if (typeof options.format === 'undefined') {
-        options.format = formats['default'];
-    } else if (!Object.prototype.hasOwnProperty.call(formats.formatters, options.format)) {
-        throw new TypeError('Unknown format option provided.');
+    var format = formats['default'];
+    if (typeof opts.format !== 'undefined') {
+        if (!has$1.call(formats.formatters, opts.format)) {
+            throw new TypeError('Unknown format option provided.');
+        }
+        format = opts.format;
     }
-    var formatter = formats.formatters[options.format];
+    var formatter = formats.formatters[format];
+
+    var filter = defaults.filter;
+    if (typeof opts.filter === 'function' || isArray$1(opts.filter)) {
+        filter = opts.filter;
+    }
+
+    return {
+        addQueryPrefix: typeof opts.addQueryPrefix === 'boolean' ? opts.addQueryPrefix : defaults.addQueryPrefix,
+        allowDots: typeof opts.allowDots === 'undefined' ? defaults.allowDots : !!opts.allowDots,
+        charset: charset,
+        charsetSentinel: typeof opts.charsetSentinel === 'boolean' ? opts.charsetSentinel : defaults.charsetSentinel,
+        delimiter: typeof opts.delimiter === 'undefined' ? defaults.delimiter : opts.delimiter,
+        encode: typeof opts.encode === 'boolean' ? opts.encode : defaults.encode,
+        encoder: typeof opts.encoder === 'function' ? opts.encoder : defaults.encoder,
+        encodeValuesOnly: typeof opts.encodeValuesOnly === 'boolean' ? opts.encodeValuesOnly : defaults.encodeValuesOnly,
+        filter: filter,
+        formatter: formatter,
+        serializeDate: typeof opts.serializeDate === 'function' ? opts.serializeDate : defaults.serializeDate,
+        skipNulls: typeof opts.skipNulls === 'boolean' ? opts.skipNulls : defaults.skipNulls,
+        sort: typeof opts.sort === 'function' ? opts.sort : null,
+        strictNullHandling: typeof opts.strictNullHandling === 'boolean' ? opts.strictNullHandling : defaults.strictNullHandling
+    };
+};
+
+var stringify_1 = function (object, opts) {
+    var obj = object;
+    var options = normalizeStringifyOptions(opts);
+
     var objKeys;
     var filter;
 
     if (typeof options.filter === 'function') {
         filter = options.filter;
         obj = filter('', obj);
-    } else if (Array.isArray(options.filter)) {
+    } else if (isArray$1(options.filter)) {
         filter = options.filter;
         objKeys = filter;
     }
@@ -24561,10 +24921,10 @@ var stringify_1 = function (object, opts) {
     }
 
     var arrayFormat;
-    if (options.arrayFormat in arrayPrefixGenerators) {
-        arrayFormat = options.arrayFormat;
-    } else if ('indices' in options) {
-        arrayFormat = options.indices ? 'indices' : 'repeat';
+    if (opts && opts.arrayFormat in arrayPrefixGenerators) {
+        arrayFormat = opts.arrayFormat;
+    } else if (opts && 'indices' in opts) {
+        arrayFormat = opts.indices ? 'indices' : 'repeat';
     } else {
         arrayFormat = 'indices';
     }
@@ -24575,38 +24935,38 @@ var stringify_1 = function (object, opts) {
         objKeys = Object.keys(obj);
     }
 
-    if (sort) {
-        objKeys.sort(sort);
+    if (options.sort) {
+        objKeys.sort(options.sort);
     }
 
     for (var i = 0; i < objKeys.length; ++i) {
         var key = objKeys[i];
 
-        if (skipNulls && obj[key] === null) {
+        if (options.skipNulls && obj[key] === null) {
             continue;
         }
         pushToArray(keys, stringify(
             obj[key],
             key,
             generateArrayPrefix,
-            strictNullHandling,
-            skipNulls,
-            encode ? encoder : null,
-            filter,
-            sort,
-            allowDots,
-            serializeDate,
-            formatter,
-            encodeValuesOnly,
-            charset
+            options.strictNullHandling,
+            options.skipNulls,
+            options.encode ? options.encoder : null,
+            options.filter,
+            options.sort,
+            options.allowDots,
+            options.serializeDate,
+            options.formatter,
+            options.encodeValuesOnly,
+            options.charset
         ));
     }
 
-    var joined = keys.join(delimiter);
+    var joined = keys.join(options.delimiter);
     var prefix = options.addQueryPrefix === true ? '?' : '';
 
     if (options.charsetSentinel) {
-        if (charset === 'iso-8859-1') {
+        if (options.charset === 'iso-8859-1') {
             // encodeURIComponent('&#10003;'), the "numeric entity" representation of a checkmark
             prefix += 'utf8=%26%2310003%3B&';
         } else {
@@ -24618,7 +24978,7 @@ var stringify_1 = function (object, opts) {
     return joined.length > 0 ? prefix + joined : '';
 };
 
-var has$1 = Object.prototype.hasOwnProperty;
+var has$2 = Object.prototype.hasOwnProperty;
 
 var defaults$1 = {
     allowDots: false,
@@ -24626,6 +24986,7 @@ var defaults$1 = {
     arrayLimit: 20,
     charset: 'utf-8',
     charsetSentinel: false,
+    comma: false,
     decoder: utils$1.decode,
     delimiter: '&',
     depth: 5,
@@ -24697,7 +25058,12 @@ var parseValues = function parseQueryStringValues(str, options) {
         if (val && options.interpretNumericEntities && charset === 'iso-8859-1') {
             val = interpretNumericEntities(val);
         }
-        if (has$1.call(obj, key)) {
+
+        if (val && options.comma && val.indexOf(',') > -1) {
+            val = val.split(',');
+        }
+
+        if (has$2.call(obj, key)) {
             obj[key] = utils$1.combine(obj[key], val);
         } else {
             obj[key] = val;
@@ -24765,7 +25131,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
     var keys = [];
     if (parent) {
         // If we aren't using plain objects, optionally prefix keys that would overwrite object prototype properties
-        if (!options.plainObjects && has$1.call(Object.prototype, parent)) {
+        if (!options.plainObjects && has$2.call(Object.prototype, parent)) {
             if (!options.allowPrototypes) {
                 return;
             }
@@ -24779,7 +25145,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
     var i = 0;
     while ((segment = child.exec(key)) !== null && i < options.depth) {
         i += 1;
-        if (!options.plainObjects && has$1.call(Object.prototype, segment[1].slice(1, -1))) {
+        if (!options.plainObjects && has$2.call(Object.prototype, segment[1].slice(1, -1))) {
             if (!options.allowPrototypes) {
                 return;
             }
@@ -24796,31 +25162,41 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
     return parseObject(keys, val, options);
 };
 
-var parse = function (str, opts) {
-    var options = opts ? utils$1.assign({}, opts) : {};
+var normalizeParseOptions = function normalizeParseOptions(opts) {
+    if (!opts) {
+        return defaults$1;
+    }
 
-    if (options.decoder !== null && options.decoder !== undefined && typeof options.decoder !== 'function') {
+    if (opts.decoder !== null && opts.decoder !== undefined && typeof opts.decoder !== 'function') {
         throw new TypeError('Decoder has to be a function.');
     }
 
-    options.ignoreQueryPrefix = options.ignoreQueryPrefix === true;
-    options.delimiter = typeof options.delimiter === 'string' || utils$1.isRegExp(options.delimiter) ? options.delimiter : defaults$1.delimiter;
-    options.depth = typeof options.depth === 'number' ? options.depth : defaults$1.depth;
-    options.arrayLimit = typeof options.arrayLimit === 'number' ? options.arrayLimit : defaults$1.arrayLimit;
-    options.parseArrays = options.parseArrays !== false;
-    options.decoder = typeof options.decoder === 'function' ? options.decoder : defaults$1.decoder;
-    options.allowDots = typeof options.allowDots === 'undefined' ? defaults$1.allowDots : !!options.allowDots;
-    options.plainObjects = typeof options.plainObjects === 'boolean' ? options.plainObjects : defaults$1.plainObjects;
-    options.allowPrototypes = typeof options.allowPrototypes === 'boolean' ? options.allowPrototypes : defaults$1.allowPrototypes;
-    options.parameterLimit = typeof options.parameterLimit === 'number' ? options.parameterLimit : defaults$1.parameterLimit;
-    options.strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : defaults$1.strictNullHandling;
-
-    if (typeof options.charset !== 'undefined' && options.charset !== 'utf-8' && options.charset !== 'iso-8859-1') {
+    if (typeof opts.charset !== 'undefined' && opts.charset !== 'utf-8' && opts.charset !== 'iso-8859-1') {
         throw new Error('The charset option must be either utf-8, iso-8859-1, or undefined');
     }
-    if (typeof options.charset === 'undefined') {
-        options.charset = defaults$1.charset;
-    }
+    var charset = typeof opts.charset === 'undefined' ? defaults$1.charset : opts.charset;
+
+    return {
+        allowDots: typeof opts.allowDots === 'undefined' ? defaults$1.allowDots : !!opts.allowDots,
+        allowPrototypes: typeof opts.allowPrototypes === 'boolean' ? opts.allowPrototypes : defaults$1.allowPrototypes,
+        arrayLimit: typeof opts.arrayLimit === 'number' ? opts.arrayLimit : defaults$1.arrayLimit,
+        charset: charset,
+        charsetSentinel: typeof opts.charsetSentinel === 'boolean' ? opts.charsetSentinel : defaults$1.charsetSentinel,
+        comma: typeof opts.comma === 'boolean' ? opts.comma : defaults$1.comma,
+        decoder: typeof opts.decoder === 'function' ? opts.decoder : defaults$1.decoder,
+        delimiter: typeof opts.delimiter === 'string' || utils$1.isRegExp(opts.delimiter) ? opts.delimiter : defaults$1.delimiter,
+        depth: typeof opts.depth === 'number' ? opts.depth : defaults$1.depth,
+        ignoreQueryPrefix: opts.ignoreQueryPrefix === true,
+        interpretNumericEntities: typeof opts.interpretNumericEntities === 'boolean' ? opts.interpretNumericEntities : defaults$1.interpretNumericEntities,
+        parameterLimit: typeof opts.parameterLimit === 'number' ? opts.parameterLimit : defaults$1.parameterLimit,
+        parseArrays: opts.parseArrays !== false,
+        plainObjects: typeof opts.plainObjects === 'boolean' ? opts.plainObjects : defaults$1.plainObjects,
+        strictNullHandling: typeof opts.strictNullHandling === 'boolean' ? opts.strictNullHandling : defaults$1.strictNullHandling
+    };
+};
+
+var parse = function (str, opts) {
+    var options = normalizeParseOptions(opts);
 
     if (str === '' || str === null || typeof str === 'undefined') {
         return options.plainObjects ? Object.create(null) : {};
@@ -24867,12 +25243,6 @@ if (typeof window !== 'undefined') {
   window.agsUtils = utils$2;
 }
 
-var utils$3 = /*#__PURE__*/Object.freeze({
-	'default': utils$2
-});
-
-var require$$0 = getCjsExportFromNamespace(utils$3);
-
-var geomapUtils = require$$0;
+var geomapUtils = utils$2;
 
 module.exports = geomapUtils;
