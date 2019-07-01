@@ -38,8 +38,8 @@ async function switchBaseMapByWebmapId(view, webmapId) {
       id: webmapId,
     },
   });
-  map.load().then(function() {
-    map.basemap.load().then(function() {
+  map.load().then(function () {
+    map.basemap.load().then(function () {
       view.map.basemap = map.basemap;
     });
   });
@@ -85,6 +85,86 @@ async function pointArr2Line(pointArr) {
   return new Polyline({
     paths: [ps],
   });
+}
+
+/**
+ * 根据点画缓冲区
+ * @author liugh mapviewer-06
+ * @param {*} point 点对象
+ * @param {*} radius 缓冲范围 默认 5
+ * @param {*} radiusUnit 缓冲单位 默认 米
+ * @return {object} pointBuffer 缓冲对象
+ */
+async function drawBuffer(point, wishRadius = 5, wishRadiusUnit) {
+  if (!point) return null;
+  const radiusUnit = wishRadiusUnit || 'meters';
+  const [geometryEngine] = await jsapi.load(['esri/geometry/geometryEngine']);
+  const pointBuffer = geometryEngine.pointBuffer(point, wishRadius, radiusUnit);
+  pointBuffer.symbol = {
+    type: 'simple-fill',
+    color: [140, 140, 222, 0.5],
+    outline: {
+      color: [0, 0, 0, 0.5],
+      width: 2,
+    },
+  };
+  return pointBuffer;
+}
+
+/**
+ * 根据图层的title删除图层
+ * @author  lee  mapviewer-07
+ * @param {object} view  场景
+ * @param {string} title  名称
+ */
+function removeLayerByTitle(view, title) {
+  const foundLayer = view.map.layers.find(lyr => {
+    return lyr.title === title;
+  });
+  view.map.remove(foundLayer);
+}
+
+/**
+ * 根据条件添加镶嵌数据集的某一副影像
+ * @author  lee  mapviewer-15
+ * @param {object} view  场景
+ * @param {string} layerUrl  镶嵌数据集服务地址
+ * @param {string} attribute  属性名称
+ * @param {string} value  属性值
+ * @param {string} goto  是否goto
+ */
+
+async function addImageryLayer(view, layerUrl, attribute, value, goto) {
+  const [ImageryLayer] = await jsapi.load(['esri/layers/ImageryLayer']);
+  var AirportDensityLayer = new ImageryLayer({
+    title: '镶嵌数据集查询结果图层',
+    url: layerUrl,
+    mosaicRule: {
+      mosaicMethod: 'esriMosaicAttribute',
+      where: attribute + "='" + value + "'",
+    },
+  });
+  view.map.add(AirportDensityLayer);
+  if (goto) {
+    AirportDensityLayer.when(async () => {
+      const [QueryTask, Query] = await jsapi.load([
+        'esri/tasks/QueryTask',
+        'esri/tasks/support/Query',
+      ]);
+      var queryTask = new QueryTask({
+        url: layerUrl,
+      });
+      var query = new Query();
+      query.where = attribute + "='" + value + "'";
+      query.returnGeometry = true;
+      query.outFields = ['*'];
+      queryTask.execute(query).then(function (results) {
+        view.goTo({
+          target: results.features[0],
+        });
+      });
+    });
+  }
 }
 
 /**
@@ -143,7 +223,7 @@ function queryFeathersFromLayer(layer, queryWhere) {
  */
 function highlightByLayerGraphic(view, layer, graphic, isGoto) {
   let highlightSelect = null;
-  view.whenLayerView(layer).then(function(layerView) {
+  view.whenLayerView(layer).then(function (layerView) {
     if (highlightSelect) highlightSelect.remove();
     highlightSelect = layerView.highlight(graphic);
   });
@@ -163,30 +243,7 @@ function highlightByLayerGraphic(view, layer, graphic, isGoto) {
     );
   }
 }
-/**
- * 根据点画缓冲区
- * @author liugh mapviewer-06
- * @param {*} point 点对象
- * @param {*} radius 缓冲范围 默认 5
- * @param {*} radiusUnit 缓冲单位 默认 米
- * @return {object} pointBuffer 缓冲对象
- */
-async function drawBuffer(point, wishRadius, wishRadiusUnit) {
-  if (!point) return null;
-  const radius = wishRadius || 5;
-  const radiusUnit = wishRadiusUnit || 'meters';
-  const [geometryEngine] = await jsapi.load(['esri/geometry/geometryEngine']);
-  const pointBuffer = geometryEngine.pointBuffer(point, radius, radiusUnit);
-  pointBuffer.symbol = {
-    type: 'simple-fill',
-    color: [140, 140, 222, 0.5],
-    outline: {
-      color: [0, 0, 0, 0.5],
-      width: 2,
-    },
-  };
-  return pointBuffer;
-}
+
 
 const mapViewUtil = {
   initMapView,
@@ -194,6 +251,8 @@ const mapViewUtil = {
   getLayerByIndex,
   getLayerById,
   setLayerVisible,
+  removeLayerByTitle,
+  addImageryLayer,
   highlightByLayerObjid,
   queryFeathersFromLayer,
   highlightByLayerGraphic,

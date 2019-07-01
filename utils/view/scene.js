@@ -1,33 +1,13 @@
 import jsapi from '../jsapi';
 
 /**
- * 环绕漫游 环绕漫游（longitude）比如：整个地图旋转
- * @no sceneviewer-03
- * @author  lee
- * @param {object} view  三维场景
- */
-let roamByLongtitudeInterval;
-function roamByLongtitude(view) {
-  if (roamByLongtitudeInterval) {
-    clearInterval(roamByLongtitudeInterval);
-    roamByLongtitudeInterval = null;
-  } else {
-    roamByLongtitudeInterval = setInterval(() => {
-      const camera = view.camera.clone();
-      camera.position.longitude += 5;
-      view.goTo(camera);
-    }, 100);
-  }
-}
-// export { roamByLongtitude }
-/**
  * 初始化三维场景
- * @author  lee  20190313
+ * @author  lee  sceneviewer-01
  * @param {object} portal  portal地址
  * @param {string} itemid  webscenenId
  * @param {string} container  地图的div
  */
-async function initSceneView(portal, itemid, container, layer, lyr) {
+async function initSceneView(portal, itemid, container) {
   const [WebScene, Sceneview] = await jsapi.load(['esri/WebScene', 'esri/views/SceneView']);
   const scene = new WebScene({
     portalItem: {
@@ -49,15 +29,44 @@ async function initSceneView(portal, itemid, container, layer, lyr) {
       components: [], // 'zoom', 'navigation-toggle', 'compass'
     },
   });
-  if (layer) {
-    view.map.add(layer);
-  }
-
-  if (lyr) {
-    view.map.add(lyr);
-  }
   return view;
 }
+/**
+ * 环绕漫游（heading）比如：沿着建筑漫游
+ * @author  lee  sceneviewer-02
+ * @param {object} view  三维场景
+ */
+let roamHandle
+function roamByHeading(view) {
+  if (roamHandle) {
+    clearInterval(roamHandle);
+    roamHandle = null;
+  } else {
+    roamHandle = setInterval(() => {
+      view.goTo({ heading: view.camera.heading + 0.5 });
+    }, 100);
+  }
+
+}
+/**
+ * 环绕漫游 环绕漫游（longitude）比如：整个地图旋转
+ * @author  lee  sceneviewer-03
+ * @param {object} view  三维场景
+ */
+let roamByLongtitudeInterval;
+function roamByLongtitude(view) {
+  if (roamByLongtitudeInterval) {
+    clearInterval(roamByLongtitudeInterval);
+    roamByLongtitudeInterval = null;
+  } else {
+    roamByLongtitudeInterval = setInterval(() => {
+      const camera = view.camera.clone();
+      camera.position.longitude += 5;
+      view.goTo(camera);
+    }, 100);
+  }
+}
+
 /**
  * 根据幻灯片的名称，切换到对应的视角
  * @author  lee
@@ -78,6 +87,6 @@ function gotoBySliderName(view, title) {
   });
 }
 
-const sceneViewUtil = { gotoBySliderName, roamByLongtitude };
+const sceneViewUtil = { initSceneView,roamByHeading, gotoBySliderName, roamByLongtitude };
 
 export default sceneViewUtil;
