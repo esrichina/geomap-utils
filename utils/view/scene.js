@@ -87,6 +87,29 @@ function gotoBySliderName(view, title) {
   });
 }
 
-const sceneViewUtil = { initSceneView,roamByHeading, gotoBySliderName, roamByLongtitude };
+/**
+ * 切换三维的旋转方式：平移或者渲染
+ * @author  lee  sceneviewer-05
+ * @param {object} view  三维场景
+ * @param {string} tool  pan or rotate
+ */
+async function changeToggle(view, tool) {
+  const [NavigationToggleViewModel] = await jsapi.load([
+    'esri/widgets/NavigationToggle/NavigationToggleViewModel',
+  ]);
+  const vm = new NavigationToggleViewModel();
+  vm.view = view;
+  if (vm.navigationMode !== tool) {
+    vm.toggle();
+  }
+}
+
+const sceneViewUtil = {
+  initSceneView, //sceneviewer-01
+  roamByHeading, //sceneviewer-02
+  gotoBySliderName, //sceneviewer-03
+  roamByLongtitude, //sceneviewer-04
+  changeToggle, //sceneviewer-05
+};
 
 export default sceneViewUtil;
