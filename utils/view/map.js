@@ -123,6 +123,37 @@ function removeLayerByTitle(view, title) {
   });
   view.map.remove(foundLayer);
 }
+/**
+ * 根据字段对图层添加标注
+ * @author liugh liugh mapviewer-08
+ * @param {*} layer 要添加标注的FeatureLayer
+ * @param {*} field 要添加标注的字段
+ */
+async function renderLayerLabelByField(layer,field){
+  if(layer.type!=='feature'){
+    const err = new Error('图层需为FeatureLayer');
+    throw(err);
+  } 
+  debugger
+  if(!layer) return
+  const labelClass = {
+    symbol: {
+      type: "text",
+      color: "green",
+      haloColor: "black",
+      font: {
+        size: 12,
+        weight: "bold"
+      }
+    },
+    labelPlacement: "above-center",
+    labelExpressionInfo: {
+      expression: "$feature."+field
+    }
+  };
+
+  layer.labelingInfo = [labelClass];
+}
 
 /**
  * 根据条件添加镶嵌数据集的某一副影像
@@ -175,6 +206,7 @@ const mapViewUtil = {
   pointArr2Line, //mapviewer-05
   drawBuffer, //mapviewer-06
   removeLayerByTitle, //mapviewer-07
+  renderLayerLabelByField,//mapviewer-08
   addImageryLayer, //mapviewer-15
 };
 
