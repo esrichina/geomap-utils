@@ -160,7 +160,7 @@ async function renderLayerLabelByField(layer, field) {
  * @author liugh  mapviewer-09
  * @param {*} view 场景
  * @param {*} title 图层标题
- * @param {*} index 要防止的索引
+ * @param {*} index 要放置的索引
  */
 function reorderLayerByTitle(view, title, index) {
   const layer = view.map.layers.find(l => l.title === title);
