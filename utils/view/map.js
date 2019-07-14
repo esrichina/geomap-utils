@@ -38,8 +38,8 @@ async function switchBaseMapByWebmapId(view, webmapId) {
       id: webmapId,
     },
   });
-  map.load().then(function () {
-    map.basemap.load().then(function () {
+  map.load().then(function() {
+    map.basemap.load().then(function() {
       view.map.basemap = map.basemap;
     });
   });
@@ -125,36 +125,47 @@ function removeLayerByTitle(view, title) {
 }
 /**
  * 根据字段对图层添加标注
- * @author liugh liugh mapviewer-08
+ * @author liugh mapviewer-08
  * @param {*} layer 要添加标注的FeatureLayer
  * @param {*} field 要添加标注的字段
  */
 async function renderLayerLabelByField(layer, field) {
   if (layer.type !== 'feature') {
     const err = new Error('图层需为FeatureLayer');
-    throw (err);
+    throw err;
   }
-  debugger
-  if (!layer) return
+  debugger;
+  if (!layer) return;
   const labelClass = {
     symbol: {
-      type: "text",
-      color: "green",
-      haloColor: "black",
+      type: 'text',
+      color: 'green',
+      haloColor: 'black',
       font: {
         size: 12,
-        weight: "bold"
-      }
+        weight: 'bold',
+      },
     },
-    labelPlacement: "above-center",
+    labelPlacement: 'above-center',
     labelExpressionInfo: {
-      expression: "$feature." + field
-    }
+      expression: '$feature.' + field,
+    },
   };
 
   layer.labelingInfo = [labelClass];
 }
 
+/**
+ * 根据图层标题调整图层顺序
+ * @author liugh  mapviewer-09
+ * @param {*} view 场景
+ * @param {*} title 图层标题
+ * @param {*} index 要放置的索引
+ */
+function reorderLayerByTitle(view, title, index) {
+  const layer = view.map.layers.find(l => l.title === title);
+  if (layer) view.map.rereorder(layer, index);
+}
 /**
  * 根据条件添加镶嵌数据集的某一副影像
  * @author  lee  mapviewer-15
@@ -189,7 +200,7 @@ async function addImageryLayer(view, layerUrl, attribute, value, goto) {
       query.where = attribute + "='" + value + "'";
       query.returnGeometry = true;
       query.outFields = ['*'];
-      queryTask.execute(query).then(function (results) {
+      queryTask.execute(query).then(function(results) {
         view.goTo({
           target: results.features[0],
         });
@@ -217,13 +228,14 @@ function filterByClient(view, layer, attribute, value) {
 
 const mapViewUtil = {
   initMapView, //mapviewer-01
-  switchBaseMapByWebmapId,  //mapviewer-02
+  switchBaseMapByWebmapId, //mapviewer-02
   getLayerByTitle, //mapviewer-03
-  setLayerVisible,  //mapviewer-04
+  setLayerVisible, //mapviewer-04
   pointArr2Line, //mapviewer-05
   drawBuffer, //mapviewer-06
   removeLayerByTitle, //mapviewer-07
-  renderLayerLabelByField,//mapviewer-08
+  renderLayerLabelByField, //mapviewer-08
+  reorderLayerByTitle, //mapviewer-09
   addImageryLayer, //mapviewer-15
   filterByClient, //mapviewer-20
 };
