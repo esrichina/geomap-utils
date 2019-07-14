@@ -129,13 +129,13 @@ function removeLayerByTitle(view, title) {
  * @param {*} layer 要添加标注的FeatureLayer
  * @param {*} field 要添加标注的字段
  */
-async function renderLayerLabelByField(layer,field){
-  if(layer.type!=='feature'){
+async function renderLayerLabelByField(layer, field) {
+  if (layer.type !== 'feature') {
     const err = new Error('图层需为FeatureLayer');
-    throw(err);
-  } 
+    throw (err);
+  }
   debugger
-  if(!layer) return
+  if (!layer) return
   const labelClass = {
     symbol: {
       type: "text",
@@ -148,7 +148,7 @@ async function renderLayerLabelByField(layer,field){
     },
     labelPlacement: "above-center",
     labelExpressionInfo: {
-      expression: "$feature."+field
+      expression: "$feature." + field
     }
   };
 
@@ -198,6 +198,23 @@ async function addImageryLayer(view, layerUrl, attribute, value, goto) {
   }
 }
 
+/**
+ * 在客户端对要素服务进行属性查询
+ * @author  lee  mapviewer-20
+ * @param {object} view  场景
+ * @param {object} layer 要素图层
+ * @param {string} attribute 属性
+ * @param {string} value 属性值
+ */
+function filterByClient(view, layer, attribute, value) {
+  view.whenLayerView(layer).then(function (layerView) {
+    layerView.filter = {
+      where: attribute + " = '" + value + "'"
+    };
+  });
+}
+
+
 const mapViewUtil = {
   initMapView, //mapviewer-01
   switchBaseMapByWebmapId,  //mapviewer-02
@@ -208,6 +225,7 @@ const mapViewUtil = {
   removeLayerByTitle, //mapviewer-07
   renderLayerLabelByField,//mapviewer-08
   addImageryLayer, //mapviewer-15
+  filterByClient, //mapviewer-20
 };
 
 export default mapViewUtil;
