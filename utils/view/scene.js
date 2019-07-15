@@ -104,12 +104,37 @@ async function changeToggle(view, tool) {
   }
 }
 
+/**
+ * 右键切换二三维场景
+ * @author  lee  sceneviewer-06
+ * @param {object} view  三维场景
+ */
+const viewStatus = '2d';
+function convertViewTile(view) {
+  view.on('immediate-click', function (evt) {
+    if (evt.button === 2) { // evt.button === 2  右键操作
+      if (viewStatus === '2d') {
+        viewStatus = '3d'
+        view.goTo({
+          tilt: 45
+        });
+      } else if (viewStatus === '3d') {
+        viewStatus = '2d'
+        view.goTo({
+          tilt: 0
+        });
+      }
+    }
+  });
+}
+
 const sceneViewUtil = {
   initSceneView, //sceneviewer-01
   roamByHeading, //sceneviewer-02
   gotoBySliderName, //sceneviewer-03
   roamByLongtitude, //sceneviewer-04
   changeToggle, //sceneviewer-05
+  convertViewTile, //sceneviewer-06
 };
 
 export default sceneViewUtil;
