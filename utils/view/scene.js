@@ -128,6 +128,66 @@ function convertViewTile(view) {
   });
 }
 
+/**
+ * 根据渲染字段值的集合创建唯一值渲染信息对象
+ * @author  wangxd  sceneviewer-07
+ * @param {object} view  三维场景
+ * @param {*} renderFieldValues
+ * @param {*} materialcolor
+ * @param {*} materialcolorMixMode
+ */
+function createUniqueValueInfos(
+  renderFieldValues,
+  materialcolor,
+  materialcolorMixMode,
+) {
+  const uniqueValueInfos = [];
+  for (let i = 0; i < renderFieldValues.length; i += 1) {
+    const tmp = {
+      value: renderFieldValues[i],
+      symbol: {
+        type: 'mesh-3d', // autocasts as new MeshSymbol3D()
+        symbolLayers: [
+          {
+            type: 'fill', // autocasts as new FillSymbol3DLayer()
+            material: {
+              color: materialcolor,
+              colorMixMode: materialcolorMixMode,
+            },
+          },
+        ],
+      },
+    };
+    uniqueValueInfos.push(tmp);
+  }
+  return uniqueValueInfos;
+}
+
+/**
+ * 创建唯一值渲染
+ * @param {*} renderField
+ * @param {*} materialcolor
+ * @param {*} materialcolorMixMode
+ * @param {*} renderFieldValues
+ */
+function getUniqueValueRenderer(
+  renderField,
+  materialcolor,
+  materialcolorMixMode,
+  renderFieldValues,
+) {
+  return {
+    type: 'unique-value', // autocasts as new UniqueValueRenderer()
+    field: renderField,
+    defaultSymbol: null,
+    uniqueValueInfos: createUniqueValueInfos(
+      renderFieldValues,
+      materialcolor,
+      materialcolorMixMode,
+    ),
+  };
+}
+
 const sceneViewUtil = {
   initSceneView, //sceneviewer-01
   roamByHeading, //sceneviewer-02
@@ -135,6 +195,7 @@ const sceneViewUtil = {
   roamByLongtitude, //sceneviewer-04
   changeToggle, //sceneviewer-05
   convertViewTile, //sceneviewer-06
+  getUniqueValueRenderer, //sceneviewer-07
 };
 
 export default sceneViewUtil;
