@@ -188,6 +188,21 @@ function getUniqueValueRenderer(
   };
 }
 
+function fineModelRenderer(scenelayer){
+  const solidEdges = {
+    type: 'solid',
+    color: [ 0, 0, 0, 0.6 ],
+    size: 1
+  }
+  if(scenelayer){
+    scenelayer.when(()=>{
+      const newRender = scenelayer.renderer.clone();
+      newRender.symbol.symbolLayers.getItemAt(0).edges = solidEdges;
+      scenelayer.renderer = newRender
+    })
+  }
+}
+
 const sceneViewUtil = {
   initSceneView, //sceneviewer-01
   roamByHeading, //sceneviewer-02
@@ -196,6 +211,7 @@ const sceneViewUtil = {
   changeToggle, //sceneviewer-05
   convertViewTile, //sceneviewer-06
   getUniqueValueRenderer, //sceneviewer-07
+  fineModelRenderer, //sceneviewer-08
 };
 
 export default sceneViewUtil;
