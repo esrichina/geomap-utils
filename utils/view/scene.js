@@ -129,31 +129,78 @@ function convertViewTile(view) {
 }
 
 /**
- * 将featurelayer 简单渲染拔高（控规盒子）
- * @author  lee  sceneviewer-07
- * @param {object} featurelayer 拔高的面要素
- * @param {string} high  高度
- * @param {string} color  颜色
+ * 根据渲染字段值的集合创建唯一值渲染信息对象
+ * @author  wangxd  sceneviewer-07
+ * @param {object} view  三维场景
+ * @param {*} renderFieldValues
+ * @param {*} materialcolor
+ * @param {*} materialcolorMixMode
  */
-function extrudeFeatureLayer(featurelayer, high, color = '#15e3e1') {
-  const boxRenderer = {
-    type: 'simple',
-    symbolLayers: [
-      {
-        type: 'extrude',
-        size: high,
-        material:{
-          color:color,
-        },
-        edges:{
-          type:'solid',
-          color:'#4d5b18',
-          size:1.5,
-        },
+function createUniqueValueInfos(
+  renderFieldValues,
+  materialcolor,
+  materialcolorMixMode,
+) {
+  const uniqueValueInfos = [];
+  for (let i = 0; i < renderFieldValues.length; i += 1) {
+    const tmp = {
+      value: renderFieldValues[i],
+      symbol: {
+        type: 'mesh-3d', // autocasts as new MeshSymbol3D()
+        symbolLayers: [
+          {
+            type: 'fill', // autocasts as new FillSymbol3DLayer()
+            material: {
+              color: materialcolor,
+              colorMixMode: materialcolorMixMode,
+            },
+          },
+        ],
       },
-    ],
+    };
+    uniqueValueInfos.push(tmp);
   }
-  featurelayer.renderer = boxRenderer;
+  return uniqueValueInfos;
+}
+
+/**
+ * 创建唯一值渲染
+ * @param {*} renderField
+ * @param {*} materialcolor
+ * @param {*} materialcolorMixMode
+ * @param {*} renderFieldValues
+ */
+function getUniqueValueRenderer(
+  renderField,
+  materialcolor,
+  materialcolorMixMode,
+  renderFieldValues,
+) {
+  return {
+    type: 'unique-value', // autocasts as new UniqueValueRenderer()
+    field: renderField,
+    defaultSymbol: null,
+    uniqueValueInfos: createUniqueValueInfos(
+      renderFieldValues,
+      materialcolor,
+      materialcolorMixMode,
+    ),
+  };
+}
+
+function fineModelRenderer(scenelayer){
+  const solidEdges = {
+    type: 'solid',
+    color: [ 0, 0, 0, 0.6 ],
+    size: 1
+  }
+  if(scenelayer){
+    scenelayer.when(()=>{
+      const newRender = scenelayer.renderer.clone();
+      newRender.symbol.symbolLayers.getItemAt(0).edges = solidEdges;
+      scenelayer.renderer = newRender
+    })
+  }
 }
 
 const sceneViewUtil = {
@@ -163,7 +210,8 @@ const sceneViewUtil = {
   roamByLongtitude, //sceneviewer-04
   changeToggle, //sceneviewer-05
   convertViewTile, //sceneviewer-06
-  extrudeFeatureLayer, //sceneviewer-07
+  getUniqueValueRenderer, //sceneviewer-07
+  fineModelRenderer, //sceneviewer-08
 };
 
 export default sceneViewUtil;
