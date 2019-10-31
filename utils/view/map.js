@@ -121,7 +121,7 @@ function removeLayerByTitle(view, title) {
   const foundLayer = view.map.layers.find(lyr => {
     return lyr.title === title;
   });
-  view.map.remove(foundLayer);
+  if(foundLayer) view.map.remove(foundLayer);
 }
 /**
  * 根据字段对图层添加标注

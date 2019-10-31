@@ -128,6 +128,34 @@ function convertViewTile(view) {
   });
 }
 
+/**
+ * 将featurelayer 简单渲染拔高（控规盒子）
+ * @author  lee  sceneviewer-07
+ * @param {object} featurelayer 拔高的面要素
+ * @param {string} high  高度
+ * @param {string} color  颜色
+ */
+function extrudeFeatureLayer(featurelayer, high, color = '#15e3e1') {
+  const boxRenderer = {
+    type: 'simple',
+    symbolLayers: [
+      {
+        type: 'extrude',
+        size: high,
+        material:{
+          color:color,
+        },
+        edges:{
+          type:'solid',
+          color:'#4d5b18',
+          size:1.5,
+        },
+      },
+    ],
+  }
+  featurelayer.renderer = boxRenderer;
+}
+
 const sceneViewUtil = {
   initSceneView, //sceneviewer-01
   roamByHeading, //sceneviewer-02
@@ -135,6 +163,7 @@ const sceneViewUtil = {
   roamByLongtitude, //sceneviewer-04
   changeToggle, //sceneviewer-05
   convertViewTile, //sceneviewer-06
+  extrudeFeatureLayer, //sceneviewer-07
 };
 
 export default sceneViewUtil;
